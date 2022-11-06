@@ -36,6 +36,6 @@ if __name__ == '__main__':
     text_block = '\n'.join(conversation)
     prompt = open_file('promptchat.txt').replace('<<BLOCK>>', text_block)
     prompt = prompt + '\nDjin:'
-    response = "Hello! I m really happy to see you, here are some randome words to fill the space. Probably wontt be this long normally but might aswell test it out" #gpt3_completion(prompt)
+    response = gpt3_completion(prompt)
     st.subheader(f'{response}')
     conversation.append(f'Djin: {response}')
