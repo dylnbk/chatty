@@ -31,10 +31,11 @@ if __name__ == '__main__':
     form = st.form("input", clear_on_submit=True)
     user_input = form.text_area('Input', label_visibility="hidden")
     form.form_submit_button("Send")
+    st.markdown('***')
     conversation.append(f'You: {user_input}')
     text_block = '\n'.join(conversation)
     prompt = open_file('promptchat.txt').replace('<<BLOCK>>', text_block)
     prompt = prompt + '\nDjin:'
-    response = gpt3_completion(prompt)
-    form.subheader(f'{response}')
+    response = "Hello! I m really happy to see you, here are some randome words to fill the space. Probably wontt be this long normally but might aswell test it out" #gpt3_completion(prompt)
+    st.subheader(f'{response}')
     conversation.append(f'Djin: {response}')
