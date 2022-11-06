@@ -18,7 +18,8 @@
 }
 
 p {
-    font-size: 4vh;
+    font-size: 3vh;
+    line-height: 40px;
     padding: 0 25px;
 }
 
