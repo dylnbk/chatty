@@ -9,7 +9,7 @@ def local_css(file_name):
     with open(file_name) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-def gpt3_completion(prompt, engine='text-davinci-002', temp=0.7, top_p=1.0, tokens=400, freq_pen=0.0, pres_pen=0.0, stop=['JAX:', 'USER:']):
+def gpt3_completion(prompt, engine='text-davinci-002', temp=0.7, top_p=1.0, tokens=400, freq_pen=0.0, pres_pen=0.0, stop=['Djin:', 'You:']):
     prompt = prompt.encode(encoding='ASCII',errors='ignore').decode()
     response = openai.Completion.create(
         engine=engine,
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     conversation.append(f'You: {user_input}')
     text_block = '\n'.join(conversation)
     prompt = open_file('promptchat.txt').replace('<<BLOCK>>', text_block)
-    prompt = prompt + '\nDjin:'
+    prompt = prompt + '\nDjin: '
     response = gpt3_completion(prompt)
     st.subheader(f'{response}')
     conversation.append(f'Djin: {response}')
