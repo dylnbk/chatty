@@ -49,6 +49,4 @@ if __name__ == '__main__':
     prompt = prompt + '\n\nMotoko: '
     response = gpt3_completion(prompt)
     st.session_state.conversation.append(f'Motoko: {response}')
-    st.write(f'{prompt}')
-    st.markdown('***')
     st.write(f'{response}')
