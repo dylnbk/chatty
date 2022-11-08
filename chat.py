@@ -9,7 +9,7 @@ def local_css(file_name):
     with open(file_name) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-def gpt3_completion(prompt, engine='text-davinci-002', temp=0.8, top_p=1, tokens=1000, freq_pen=0.0, pres_pen=0.0, stop=['You:']):
+def gpt3_completion(prompt, engine='text-davinci-002', temp=0.7, top_p=1, tokens=1000, freq_pen=0.0, pres_pen=0.0, stop=['Motoko:', 'You:']):
     prompt = prompt.encode(encoding='ASCII',errors='ignore').decode()
     response = openai.Completion.create(
         engine=engine,
@@ -43,10 +43,12 @@ if __name__ == '__main__':
     user_input = form.text_area('Input', label_visibility="hidden")
     form.form_submit_button("Send")
     st.markdown('***')
-    st.session_state.conversation.append(f'You: {user_input}')
-    text_block = '\n'.join(st.session_state.conversation)
+    st.session_state.conversation.append(f'You: {user_input}') #
+    text_block = '\n\n\n'.join(st.session_state.conversation)
     prompt = open_file('promptchat.txt').replace('<<BLOCK>>', text_block)
-    prompt = prompt + '\nMotoko: '
+    prompt = prompt + '\n\nMotoko: '
     response = gpt3_completion(prompt)
-    st.write(f'{response}')
     st.session_state.conversation.append(f'Motoko: {response}')
+    st.write(f'{prompt}')
+    st.markdown('***')
+    st.write(f'{response}')
