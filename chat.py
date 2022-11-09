@@ -38,7 +38,7 @@ def gpt3_completion(prompt, engine='text-davinci-002', temp=0.7, top_p=1, tokens
 
 # page configurations
 st.set_page_config(
-    page_title="chatty",
+    page_title="Ask it.",
     page_icon="💬",
     menu_items={
         'Report a bug': "mailto:dyln.bk@gmail.com",
@@ -60,7 +60,7 @@ if 'check' not in st.session_state:
     st.session_state.check = False
 
 if __name__ == '__main__':
-    st.title('chat with motoko...')    
+    st.title('Ask it.')    
 
     # create a form                              
     form = st.form("input", clear_on_submit=True)
