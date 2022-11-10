@@ -65,7 +65,7 @@ if __name__ == '__main__':
     # create a form                              
     form = st.form("input", clear_on_submit=True)
     user_input = form.text_area('Input', label_visibility="hidden")
-    form.form_submit_button("s e n d", on_click=check_true)
+    form.form_submit_button("Send", on_click=check_true)
     st.markdown('***')
 
     # if the form is submitted, create and write the response
