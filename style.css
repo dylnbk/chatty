@@ -30,3 +30,7 @@ p {
     line-height: 40px;
     padding: 0 25px;
 }
+
+div.block-container {
+    padding-top: 50px;
+}

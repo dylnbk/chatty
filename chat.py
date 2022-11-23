@@ -62,10 +62,13 @@ if 'check' not in st.session_state:
 if __name__ == '__main__':
     st.title('Ask it.')    
 
+    # define tabs
+    # tab1, tab2, tab3, tab4, tab5 = st.tabs(["Helpful", "Goofy", "Sarcastic", "Angry", "Robot"])
+
     # create a form                              
     form = st.form("input", clear_on_submit=True)
     user_input = form.text_area('Input', label_visibility="hidden")
-    form.form_submit_button("Send", on_click=check_true)
+    form.form_submit_button("Submit", on_click=check_true)
     st.markdown('***')
 
     # if the form is submitted, create and write the response
