@@ -16,7 +16,7 @@ def check_true():
     st.session_state.check = True
 
 # GPT3 request
-def gpt3_completion(prompt, engine='text-davinci-002', temp=0.7, top_p=1, tokens=1000, freq_pen=0.0, pres_pen=0.0, stop=['Motoko:', 'You:']):
+def gpt3_completion(prompt, engine='text-davinci-002', temp=0.7, top_p=1, tokens=1000, freq_pen=0.3, pres_pen=0.0, stop=['Motoko:', 'You:']):
 
     # clean prompt of unsupported characters
     prompt = prompt.encode(encoding='ASCII',errors='ignore').decode()
@@ -53,20 +53,21 @@ openai.api_key = st.secrets["openaiapikey"]
 
 # create session state to save the conversation
 if 'conversation' not in st.session_state:
-    st.session_state.conversation = []
+    st.session_state.conversation = {
+
+        "motoko": [],
+    }
 
 # create session state for form submission
 if 'check' not in st.session_state:
     st.session_state.check = False
 
 if __name__ == '__main__':
+
     st.title('Ask it.')    
 
-    # define tabs
-    # tab1, tab2, tab3, tab4, tab5 = st.tabs(["Helpful", "Goofy", "Sarcastic", "Angry", "Robot"])
-
     # create a form                              
-    form = st.form("input", clear_on_submit=True)
+    form = st.form("input_motoko", clear_on_submit=True)
     user_input = form.text_area('Input', label_visibility="hidden")
     form.form_submit_button("Submit", on_click=check_true)
     st.markdown('***')
@@ -75,14 +76,14 @@ if __name__ == '__main__':
     if st.session_state.check:
 
         # get user input and insert into the prompt
-        st.session_state.conversation.append(f'You: {user_input}')
-        text_block = '\n\n\n'.join(st.session_state.conversation)
-        prompt = open_file('promptchat.txt').replace('<<BLOCK>>', text_block)
+        st.session_state.conversation["motoko"].append(f'You: {user_input}')
+        text_block = '\n\n\n'.join(st.session_state.conversation["motoko"])
+        prompt = open_file('promptchat_motoko.txt').replace('<<BLOCK>>', text_block)
         prompt = prompt + '\n\nMotoko: '
 
         # request completetion 
         response = gpt3_completion(prompt)
 
         # append motoko response & write the response
-        st.session_state.conversation.append(f'Motoko: {response}')
-        st.write(f'{response}')
+        st.session_state.conversation["motoko"].append(f'Motoko: {response}')
+        st.write(response)
