@@ -24,17 +24,33 @@
 .css-5uatcg.edgvbvh5 {
     width: 150px;
 }
-
+/*
 p {
     font-size: 3vh;
     line-height: 40px;
     padding: 0 25px;
 }
-
+*/
 div.block-container {
     padding-top: 50px;
 }
 
 hr {
     border-bottom: solid 2px #7c7c7c31;
+}
+
+.streamlit-expander {
+    border: none;
+    border-radius: 0px;
+    border-bottom: solid 2px #7c7c7c31;
+}
+
+.css-1fv8s86.e16nr0p34 {
+    padding-left: 10px; /* review this */
+}
+
+h2 {
+    padding: 20px;
+    font-size: 2rem;
+    font-weight: 300;
 }

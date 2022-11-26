@@ -68,9 +68,23 @@ if __name__ == '__main__':
 
     # create a form                              
     form = st.form("input_motoko", clear_on_submit=True)
-    user_input = form.text_area('Input', label_visibility="hidden")
+    user_input = form.text_area('Enter a message:')
     form.form_submit_button("Submit", on_click=check_true)
-    st.markdown('***')
+
+    # create an info box
+    with st.expander("See info"):
+
+        st.write("### Thanks for visiting Chatty!")
+
+        st.write("""
+            This website was made using Python, you can view the source [here](https://github.com/dylnbk/chat-bot).
+
+            The chat-bot will try to have a conversation by using OpenAI's GPT-3 model. 
+            
+            To show support, you can ☕ [buy me a coffee](https://www.buymeacoffee.com/dylnbk).
+            """)
+
+        st.write("")
 
     # if the form is submitted, create and write the response
     if st.session_state.check:
@@ -86,4 +100,4 @@ if __name__ == '__main__':
 
         # append motoko response & write the response
         st.session_state.conversation["motoko"].append(f'Motoko: {response}')
-        st.write(response)
+        st.header(response)
