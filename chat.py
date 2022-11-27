@@ -176,7 +176,7 @@ if __name__ == '__main__':
                 response = gpt3_completion(prompt)
 
                 # write the response
-                st.write(f'<p style="font-size: 1.5rem; padding: 10px;">{response}</p>', unsafe_allow_html=True)
+                st.write(response)
 
     with tab3:
 
