@@ -151,6 +151,9 @@ if __name__ == '__main__':
                 st.session_state.conversation["motoko"].append(f'Motoko: {response}')
                 st.write(f'<p style="font-size: 1.5rem; padding: 10px;">{response}</p>', unsafe_allow_html=True)
 
+                # reset the session state
+                st.session_state.check["motoko"] = False
+
     with tab2:
 
         # create a form  
@@ -178,6 +181,9 @@ if __name__ == '__main__':
                 # write the response
                 st.write(response)
 
+                # reset the session state
+                st.session_state.check["summarise"] = False
+
     with tab3:
 
         # create a form  
@@ -204,3 +210,6 @@ if __name__ == '__main__':
 
                 # write the response
                 st.write(f'<p style="font-size: 1.5rem; padding: 10px;">{response}</p>', unsafe_allow_html=True)
+
+                # reset the session state
+                st.session_state.check["explain"] = False
