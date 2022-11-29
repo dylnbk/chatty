@@ -24,7 +24,7 @@ def check_true_explain():
     st.session_state.check["explain"] = True
 
 # GPT3 request
-def gpt3_completion(prompt, engine='text-davinci-002', temp=0.7, top_p=1, tokens=1000, freq_pen=0.3, pres_pen=0.0, stop=['Motoko:', 'You:']):
+def gpt3_completion(prompt, engine='text-davinci-003', temp=0.7, top_p=1, tokens=2000, freq_pen=0.3, pres_pen=0.0, stop=['Motoko:', 'You:']):
 
     # clean prompt of unsupported characters
     prompt = prompt.encode(encoding='ASCII',errors='ignore').decode()
@@ -70,7 +70,7 @@ def info_box():
 
         st.write("""
             ##### Summarize
-            - Enter text for a numbered summary.
+            - Converts text into a summarized numbered list.
             """)
 
         st.write("***")
@@ -160,7 +160,7 @@ if __name__ == '__main__':
         with st.form("input_summarise", clear_on_submit=True):   
 
             # text area for user input limited to 1k chars
-            user_input = st.text_area('Enter a message:', max_chars=1000)
+            user_input = st.text_area('Enter a message:', max_chars=1250)
 
             # submit button with onclick that udpates session state 
             st.form_submit_button("Submit", on_click=check_true_summarise)
@@ -190,7 +190,7 @@ if __name__ == '__main__':
         with st.form("input_explain", clear_on_submit=True):   
 
             # text area for user input limited to 1k chars
-            user_input = st.text_area('Enter a message:', max_chars=1000)
+            user_input = st.text_area('Enter a message:', max_chars=1250)
 
             # submit button with onclick that udpates session state 
             st.form_submit_button("Submit", on_click=check_true_explain)
@@ -209,7 +209,7 @@ if __name__ == '__main__':
                 response = gpt3_completion(prompt)
 
                 # write the response
-                st.write(f'<p style="font-size: 1.5rem; padding: 10px;">{response}</p>', unsafe_allow_html=True)
+                st.write(response)
 
                 # reset the session state
                 st.session_state.check["explain"] = False
