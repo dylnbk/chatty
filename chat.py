@@ -190,7 +190,7 @@ if __name__ == '__main__':
         with st.form("input_explain", clear_on_submit=True):   
 
             # text area for user input limited to 1k chars
-            user_input = st.text_area('Enter a message:', max_chars=1250)
+            user_input = st.text_area('Enter a message:', max_chars=1000)
 
             # submit button with onclick that udpates session state 
             st.form_submit_button("Submit", on_click=check_true_explain)
