@@ -202,7 +202,7 @@ if __name__ == '__main__':
             if st.session_state.check["explain"]:
 
                 # get user input and insert into the prompt
-                text_block = f'{user_input}'
+                text_block = f'{user_input}\n\nELI5:'
                 prompt = open_file('promptchat_explain.txt').replace('<<BLOCK>>', text_block)
 
                 # request completetion 
