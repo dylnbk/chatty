@@ -121,95 +121,101 @@ if __name__ == '__main__':
     # define tabs
     tab1, tab2, tab3 = st.tabs(["Chat", "Summarize", "Explain"])
 
-    with tab1:
+    try:
 
-        # create a form  
-        with st.form("input_motoko", clear_on_submit=True):     
+        with tab1:
 
-            # text area for user input limited to 1k chars
-            user_input = st.text_area('Enter a message:', max_chars=500)
+            # create a form  
+            with st.form("input_motoko", clear_on_submit=True):     
 
-            # submit button with onclick that udpates session state 
-            st.form_submit_button("Submit", on_click=check_true_motoko)
+                # text area for user input limited to 1k chars
+                user_input = st.text_area('Enter a message:', max_chars=500)
 
-            # see info box
-            info_box()
+                # submit button with onclick that udpates session state 
+                st.form_submit_button("Submit", on_click=check_true_motoko)
 
-            # if the form is submitted, create and write the response
-            if st.session_state.check["motoko"]:
+                # see info box
+                info_box()
 
-                # get user input and insert into the prompt
-                st.session_state.conversation["motoko"].append(f'You: {user_input}')
-                text_block = '\n\n\n'.join(st.session_state.conversation["motoko"])
-                prompt = open_file('promptchat_motoko.txt').replace('<<BLOCK>>', text_block)
-                prompt = prompt + '\n\nMotoko: '
+                # if the form is submitted, create and write the response
+                if st.session_state.check["motoko"]:
 
-                # request completetion 
-                response = gpt3_completion(prompt)
+                    # get user input and insert into the prompt
+                    st.session_state.conversation["motoko"].append(f'You: {user_input}')
+                    text_block = '\n\n\n'.join(st.session_state.conversation["motoko"])
+                    prompt = open_file('promptchat_motoko.txt').replace('<<BLOCK>>', text_block)
+                    prompt = prompt + '\n\nMotoko: '
 
-                # append motoko response & write the response
-                st.session_state.conversation["motoko"].append(f'Motoko: {response}')
-                st.write(f'<p style="font-size: 1.5rem; padding: 10px;">{response}</p>', unsafe_allow_html=True)
+                    # request completetion 
+                    response = gpt3_completion(prompt)
 
-                # reset the session state
-                st.session_state.check["motoko"] = False
+                    # append motoko response & write the response
+                    st.session_state.conversation["motoko"].append(f'Motoko: {response}')
+                    st.write(f'<p style="font-size: 1.5rem; padding: 10px;">{response}</p>', unsafe_allow_html=True)
 
-    with tab2:
+                    # reset the session state
+                    st.session_state.check["motoko"] = False
 
-        # create a form  
-        with st.form("input_summarise", clear_on_submit=True):   
+        with tab2:
 
-            # text area for user input limited to 1k chars
-            user_input = st.text_area('Enter a message:', max_chars=1250)
+            # create a form  
+            with st.form("input_summarise", clear_on_submit=True):   
 
-            # submit button with onclick that udpates session state 
-            st.form_submit_button("Submit", on_click=check_true_summarise)
+                # text area for user input limited to 1k chars
+                user_input = st.text_area('Enter a message:', max_chars=1250)
 
-            # see info box
-            info_box()
+                # submit button with onclick that udpates session state 
+                st.form_submit_button("Submit", on_click=check_true_summarise)
 
-            # if the form is submitted, create and write the response
-            if st.session_state.check["summarise"]:
+                # see info box
+                info_box()
 
-                # get user input and insert into the prompt
-                text_block = f'{user_input}\n\nSummarize the text using a numeric list:'
-                prompt = open_file('promptchat_summarise.txt').replace('<<BLOCK>>', text_block)
+                # if the form is submitted, create and write the response
+                if st.session_state.check["summarise"]:
 
-                # request completetion 
-                response = gpt3_completion(prompt)
+                    # get user input and insert into the prompt
+                    text_block = f'{user_input}\n\nSummarize the text using a numeric list:'
+                    prompt = open_file('promptchat_summarise.txt').replace('<<BLOCK>>', text_block)
 
-                # write the response
-                st.write(response)
+                    # request completetion 
+                    response = gpt3_completion(prompt)
 
-                # reset the session state
-                st.session_state.check["summarise"] = False
+                    # write the response
+                    st.write(response)
 
-    with tab3:
+                    # reset the session state
+                    st.session_state.check["summarise"] = False
 
-        # create a form  
-        with st.form("input_explain", clear_on_submit=True):   
+        with tab3:
 
-            # text area for user input limited to 1k chars
-            user_input = st.text_area('Enter a message:', max_chars=1250)
+            # create a form  
+            with st.form("input_explain", clear_on_submit=True):   
 
-            # submit button with onclick that udpates session state 
-            st.form_submit_button("Submit", on_click=check_true_explain)
+                # text area for user input limited to 1k chars
+                user_input = st.text_area('Enter a message:', max_chars=1250)
 
-            # see info box
-            info_box()
+                # submit button with onclick that udpates session state 
+                st.form_submit_button("Submit", on_click=check_true_explain)
 
-            # if the form is submitted, create and write the response
-            if st.session_state.check["explain"]:
+                # see info box
+                info_box()
 
-                # get user input and insert into the prompt
-                text_block = f'{user_input}\n\nELI5:'
-                prompt = open_file('promptchat_explain.txt').replace('<<BLOCK>>', text_block)
+                # if the form is submitted, create and write the response
+                if st.session_state.check["explain"]:
 
-                # request completetion 
-                response = gpt3_completion(prompt)
+                    # get user input and insert into the prompt
+                    text_block = f'{user_input}\n\nELI5:'
+                    prompt = open_file('promptchat_explain.txt').replace('<<BLOCK>>', text_block)
 
-                # write the response
-                st.write(response)
+                    # request completetion 
+                    response = gpt3_completion(prompt)
 
-                # reset the session state
-                st.session_state.check["explain"] = False
+                    # write the response
+                    st.write(response)
+
+                    # reset the session state
+                    st.session_state.check["explain"] = False
+
+    # pain
+    except Exception as e:
+                st.error(f"Something went wrong...", icon="💔")
