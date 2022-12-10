@@ -23,6 +23,10 @@ def check_true_summarise():
 def check_true_explain():
     st.session_state.check["explain"] = True
 
+# state session check for form submission
+def check_true_stories():
+    st.session_state.check["stories"] = True
+
 # GPT3 request
 def gpt3_completion(prompt, engine='text-davinci-003', temp=0.7, top_p=1, tokens=2000, freq_pen=0.3, pres_pen=0.0, stop=['Motoko:', 'You:']):
 
@@ -80,6 +84,11 @@ def info_box():
             - Will attempt to simplify & explain the text.
             - Works for code snippets!
             """)
+        st.write("***")
+        st.write("""
+            ##### Story
+            - Provide some details & a story will be written about them.
+            """)
 
         st.write("")
         st.write("")
@@ -111,7 +120,8 @@ if 'check' not in st.session_state:
 
         "motoko": False,
         "summarise": False,
-        "explain": False
+        "explain": False,
+        "stories": False
     }
 
 if __name__ == '__main__':
@@ -119,10 +129,11 @@ if __name__ == '__main__':
     st.title('Ask it.')    
 
     # define tabs
-    tab1, tab2, tab3 = st.tabs(["Chat", "Summarize", "Explain"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Chat", "Summarize", "Explain", "Story"])
 
     try:
 
+        # chatbot
         with tab1:
 
             # create a form  
@@ -156,6 +167,7 @@ if __name__ == '__main__':
                     # reset the session state
                     st.session_state.check["motoko"] = False
 
+        # summarise
         with tab2:
 
             # create a form  
@@ -175,7 +187,7 @@ if __name__ == '__main__':
 
                     # get user input and insert into the prompt
                     text_block = f'{user_input}\n\nSummarize the text using a numeric list:'
-                    prompt = open_file('promptchat_summarise.txt').replace('<<BLOCK>>', text_block)
+                    prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
 
                     # request completetion 
                     response = gpt3_completion(prompt)
@@ -186,6 +198,7 @@ if __name__ == '__main__':
                     # reset the session state
                     st.session_state.check["summarise"] = False
 
+        # explain
         with tab3:
 
             # create a form  
@@ -205,7 +218,7 @@ if __name__ == '__main__':
 
                     # get user input and insert into the prompt
                     text_block = f'{user_input}\n\nELI5:'
-                    prompt = open_file('promptchat_explain.txt').replace('<<BLOCK>>', text_block)
+                    prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
 
                     # request completetion 
                     response = gpt3_completion(prompt)
@@ -215,6 +228,37 @@ if __name__ == '__main__':
 
                     # reset the session state
                     st.session_state.check["explain"] = False
+
+        # stories
+        with tab4:
+
+            # create a form  
+            with st.form("input_stories", clear_on_submit=True):   
+
+                # text area for user input limited to 1k chars
+                user_input = st.text_area('Enter a message:', max_chars=1250)
+
+                # submit button with onclick that udpates session state 
+                st.form_submit_button("Submit", on_click=check_true_stories)
+
+                # see info box
+                info_box()
+
+                # if the form is submitted, create and write the response
+                if st.session_state.check["stories"]:
+
+                    # get user input and insert into the prompt
+                    text_block = f'Use the text below to create a unique story intended for a book:\n\n{user_input}'
+                    prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
+
+                    # request completetion 
+                    response = gpt3_completion(prompt)
+
+                    # write the response
+                    st.write(response)
+
+                    # reset the session state
+                    st.session_state.check["stories"] = False
 
     # pain
     except Exception as e:
