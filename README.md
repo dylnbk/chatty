@@ -1,7 +1,11 @@
-# GPT-3 powered chat-bot
+# GPT-3 powered toolkit
 
-chat with motoko...
+Chat with an GPT3 powered friend!
 
-made using openAI to generate the responses & streamlit for the web framework.
+Turn a block of text into a summerised, numbered list.
 
-https://chatty.streamlit.app/
+ELI5: Explain concepts in simpler terminology.
+
+Input some basic details & turn them into a short story.
+
+Made using openAI to generate the responses & streamlit for the web framework.
