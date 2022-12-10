@@ -1,6 +1,6 @@
 # GPT-3 powered toolkit
 
-Chat with an GPT3 powered friend!
+Chat with a GPT3 powered friend!
 
 Turn a block of text into a summerised, numbered list.
 
