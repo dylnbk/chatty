@@ -1,16 +1,38 @@
 import openai
 import streamlit as st
 
-# open files
-def open_file(filepath):
-    with open(filepath, 'r', encoding='utf-8') as infile:
-        return infile.read()
-
 # load & inject style sheet
 def local_css(file_name):
     with open(file_name) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
+# open files
+def open_file(filepath):
+    with open(filepath, 'r', encoding='utf-8') as infile:
+        return infile.read()
+
+# GPT3 request
+def gpt3_completion(prompt, engine='text-davinci-003', temp=0.7, top_p=1, tokens=2500, freq_pen=0.7, pres_pen=0.0, stop=['Motoko:', 'You:']):
+
+    # clean prompt of unsupported characters
+    prompt = prompt.encode(encoding='ASCII',errors='ignore').decode()
+
+    # fetch response
+    response = openai.Completion.create(
+        engine=engine,
+        prompt=prompt,
+        temperature=temp,
+        max_tokens=tokens,
+        top_p=top_p,
+        frequency_penalty=freq_pen,
+        presence_penalty=pres_pen,
+        stop=stop)
+    
+    # strip & return motoko response
+    text = response['choices'][0]['text'].strip()
+    return text
+
+# see info box
 def info_box():
 
     # create an info box
@@ -63,6 +85,163 @@ def info_box():
         st.write("")
         st.write("")
 
+# chat tab
+def chat_menu():
+
+    # create a form  
+    with st.form("input_motoko", clear_on_submit=True):     
+
+        # text area for user input limited to 1k chars
+        user_input = st.text_area('Enter a message:', max_chars=500)
+
+        # submit button with onclick that udpates session state 
+        st.form_submit_button("Submit", on_click=check_true_motoko)
+
+        # see info box
+        info_box()
+
+        # if the form is submitted, create and write the response
+        if st.session_state.check["motoko"]:
+
+            # get user input and insert into the prompt
+            st.session_state.conversation["motoko"].append(f'You: {user_input}')
+            text_block = '\n\n\n'.join(st.session_state.conversation["motoko"])
+            prompt = open_file('promptchat_motoko.txt').replace('<<BLOCK>>', text_block)
+            prompt = prompt + '\n\nMotoko: '
+
+            # request completetion 
+            response = gpt3_completion(prompt)
+
+            # append motoko response & write the response
+            st.session_state.conversation["motoko"].append(f'Motoko: {response}')
+            st.write(f'<p style="font-size: 1.5rem; padding: 10px;">{response}</p>', unsafe_allow_html=True)
+
+            # reset the session state
+            st.session_state.check["motoko"] = False
+
+# summarize menu
+def summary_menu():
+
+    # create a form  
+    with st.form("input_summarise", clear_on_submit=True):   
+
+        # text area for user input limited to 1k chars
+        user_input = st.text_area('Enter a message:', max_chars=1500)
+
+        # submit button with onclick that udpates session state 
+        st.form_submit_button("Submit", on_click=check_true_summarise)
+
+        # see info box
+        info_box()
+
+        # if the form is submitted, create and write the response
+        if st.session_state.check["summarise"]:
+
+            # get user input and insert into the prompt
+            text_block = f'{user_input}\n\nSummarize the text using a numeric list:'
+            prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
+
+            # request completetion 
+            response = gpt3_completion(prompt)
+
+            # write the response
+            st.write(response)
+
+            # reset the session state
+            st.session_state.check["summarise"] = False
+
+# explain menu
+def explain_menu():
+
+    # create a form  
+    with st.form("input_explain", clear_on_submit=True):   
+
+        # text area for user input limited to 1k chars
+        user_input = st.text_area('Enter a message:', max_chars=1500)
+
+        # submit button with onclick that udpates session state 
+        st.form_submit_button("Submit", on_click=check_true_explain)
+
+        # see info box
+        info_box()
+
+        # if the form is submitted, create and write the response
+        if st.session_state.check["explain"]:
+
+            # get user input and insert into the prompt
+            text_block = f'{user_input}\n\nELI5:'
+            prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
+
+            # request completetion 
+            response = gpt3_completion(prompt)
+
+            # write the response
+            st.write(response)
+
+            # reset the session state
+            st.session_state.check["explain"] = False
+
+# paraphrase menu
+def rewrite_menu():
+
+    # create a form  
+    with st.form("input_rewrite", clear_on_submit=True):   
+
+        # text area for user input limited to 1k chars
+        user_input = st.text_area('Enter a message:', max_chars=1500)
+
+        # submit button with onclick that udpates session state 
+        st.form_submit_button("Submit", on_click=check_true_rewrite)
+
+        # see info box
+        info_box()
+
+        # if the form is submitted, create and write the response
+        if st.session_state.check["rewrite"]:
+
+            # get user input and insert into the prompt
+            text_block = f'Paraphrase this piece of text:\n\n{user_input}'
+            prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
+
+            # request completetion 
+            response = gpt3_completion(prompt)
+
+            # write the response
+            st.write(response)
+
+            # reset the session state
+            st.session_state.check["rewrite"] = False
+
+# create stories menu
+def story_menu():
+
+    # create a form  
+    with st.form("input_stories", clear_on_submit=True):   
+
+        # text area for user input limited to 1k chars
+        user_input = st.text_area('Enter a message:', max_chars=1500)
+
+        # submit button with onclick that udpates session state 
+        st.form_submit_button("Submit", on_click=check_true_stories)
+
+        # see info box
+        info_box()
+
+        # if the form is submitted, create and write the response
+        if st.session_state.check["stories"]:
+
+            # get user input and insert into the prompt
+            text_block = f'Use the text below to create a unique story intended for a book:\n\n{user_input}'
+            prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
+
+            # request completetion 
+            response = gpt3_completion(prompt)
+
+            # write the response
+            st.write(response)
+
+            # reset the session state
+            st.session_state.check["stories"] = False
 
 # state session check for form submission
 def check_true_motoko():
@@ -80,46 +259,9 @@ def check_true_explain():
 def check_true_rewrite():
     st.session_state.check["rewrite"] = True
 
-
 # state session check for form submission
 def check_true_stories():
     st.session_state.check["stories"] = True
-
-# GPT3 request
-def gpt3_completion(prompt, engine='text-davinci-003', temp=0.7, top_p=1, tokens=2500, freq_pen=0.6, pres_pen=0.0, stop=['Motoko:', 'You:']):
-
-    # clean prompt of unsupported characters
-    prompt = prompt.encode(encoding='ASCII',errors='ignore').decode()
-
-    # fetch response
-    response = openai.Completion.create(
-        engine=engine,
-        prompt=prompt,
-        temperature=temp,
-        max_tokens=tokens,
-        top_p=top_p,
-        frequency_penalty=freq_pen,
-        presence_penalty=pres_pen,
-        stop=stop)
-    
-    # strip & return motoko response
-    text = response['choices'][0]['text'].strip()
-    return text
-
-# page configurations
-st.set_page_config(
-    page_title="Ask it.",
-    page_icon="💬",
-    menu_items={
-        'Report a bug': "mailto:dyln.bk@gmail.com",
-        'Get help': None,
-        'About': "Made by dyln.bk"
-    }
-)
-
-# style sheet & openAI API key
-local_css("style.css")
-openai.api_key = st.secrets["openaiapikey"]
 
 # create session state to save the conversation
 if 'conversation' not in st.session_state:
@@ -138,6 +280,21 @@ if 'check' not in st.session_state:
         "stories": False
     }
 
+# page configurations
+st.set_page_config(
+    page_title="Ask it.",
+    page_icon="💬",
+    menu_items={
+        'Report a bug': "mailto:dyln.bk@gmail.com",
+        'Get help': None,
+        'About': "Made by dyln.bk"
+    }
+)
+
+# style sheet & openAI API key
+local_css("style.css")
+openai.api_key = st.secrets["openaiapikey"]
+
 if __name__ == '__main__':
 
     st.title('Ask it.')    
@@ -150,160 +307,27 @@ if __name__ == '__main__':
         # chatbot
         with tab1:
 
-            # create a form  
-            with st.form("input_motoko", clear_on_submit=True):     
-
-                # text area for user input limited to 1k chars
-                user_input = st.text_area('Enter a message:', max_chars=500)
-
-                # submit button with onclick that udpates session state 
-                st.form_submit_button("Submit", on_click=check_true_motoko)
-
-                # see info box
-                info_box()
-
-                # if the form is submitted, create and write the response
-                if st.session_state.check["motoko"]:
-
-                    # get user input and insert into the prompt
-                    st.session_state.conversation["motoko"].append(f'You: {user_input}')
-                    text_block = '\n\n\n'.join(st.session_state.conversation["motoko"])
-                    prompt = open_file('promptchat_motoko.txt').replace('<<BLOCK>>', text_block)
-                    prompt = prompt + '\n\nMotoko: '
-
-                    # request completetion 
-                    response = gpt3_completion(prompt)
-
-                    # append motoko response & write the response
-                    st.session_state.conversation["motoko"].append(f'Motoko: {response}')
-                    st.write(f'<p style="font-size: 1.5rem; padding: 10px;">{response}</p>', unsafe_allow_html=True)
-
-                    # reset the session state
-                    st.session_state.check["motoko"] = False
+            chat_menu()
 
         # summarise
         with tab2:
 
-            # create a form  
-            with st.form("input_summarise", clear_on_submit=True):   
-
-                # text area for user input limited to 1k chars
-                user_input = st.text_area('Enter a message:', max_chars=1500)
-
-                # submit button with onclick that udpates session state 
-                st.form_submit_button("Submit", on_click=check_true_summarise)
-
-                # see info box
-                info_box()
-
-                # if the form is submitted, create and write the response
-                if st.session_state.check["summarise"]:
-
-                    # get user input and insert into the prompt
-                    text_block = f'{user_input}\n\nSummarize the text using a numeric list:'
-                    prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
-
-                    # request completetion 
-                    response = gpt3_completion(prompt)
-
-                    # write the response
-                    st.write(response)
-
-                    # reset the session state
-                    st.session_state.check["summarise"] = False
+            summary_menu()
 
         # explain
         with tab3:
 
-            # create a form  
-            with st.form("input_explain", clear_on_submit=True):   
-
-                # text area for user input limited to 1k chars
-                user_input = st.text_area('Enter a message:', max_chars=1500)
-
-                # submit button with onclick that udpates session state 
-                st.form_submit_button("Submit", on_click=check_true_explain)
-
-                # see info box
-                info_box()
-
-                # if the form is submitted, create and write the response
-                if st.session_state.check["explain"]:
-
-                    # get user input and insert into the prompt
-                    text_block = f'{user_input}\n\nELI5:'
-                    prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
-
-                    # request completetion 
-                    response = gpt3_completion(prompt)
-
-                    # write the response
-                    st.write(response)
-
-                    # reset the session state
-                    st.session_state.check["explain"] = False
+            explain_menu()
 
         # re-write
         with tab4:
 
-            # create a form  
-            with st.form("input_rewrite", clear_on_submit=True):   
-
-                # text area for user input limited to 1k chars
-                user_input = st.text_area('Enter a message:', max_chars=1500)
-
-                # submit button with onclick that udpates session state 
-                st.form_submit_button("Submit", on_click=check_true_rewrite)
-
-                # see info box
-                info_box()
-
-                # if the form is submitted, create and write the response
-                if st.session_state.check["rewrite"]:
-
-                    # get user input and insert into the prompt
-                    text_block = f'Paraphrase this piece of text:\n\n{user_input}'
-                    prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
-
-                    # request completetion 
-                    response = gpt3_completion(prompt)
-
-                    # write the response
-                    st.write(response)
-
-                    # reset the session state
-                    st.session_state.check["rewrite"] = False
+            rewrite_menu()
 
         # stories
         with tab5:
 
-            # create a form  
-            with st.form("input_stories", clear_on_submit=True):   
-
-                # text area for user input limited to 1k chars
-                user_input = st.text_area('Enter a message:', max_chars=1500)
-
-                # submit button with onclick that udpates session state 
-                st.form_submit_button("Submit", on_click=check_true_stories)
-
-                # see info box
-                info_box()
-
-                # if the form is submitted, create and write the response
-                if st.session_state.check["stories"]:
-
-                    # get user input and insert into the prompt
-                    text_block = f'Use the text below to create a unique story intended for a book:\n\n{user_input}'
-                    prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
-
-                    # request completetion 
-                    response = gpt3_completion(prompt)
-
-                    # write the response
-                    st.write(response)
-
-                    # reset the session state
-                    st.session_state.check["stories"] = False
+            story_menu()
 
     # pain
     except Exception as e:
