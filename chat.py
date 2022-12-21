@@ -32,6 +32,15 @@ def gpt3_completion(prompt, engine='text-davinci-003', temp=0.7, top_p=1, tokens
     text = response['choices'][0]['text'].strip()
     return text
 
+# count words
+def word_count(string):
+
+    # if total count of words > 1000
+    if len(string.strip().split(" ")) > 1000:
+
+        # slice/delete the last entries from the conversation
+        st.session_state.conversation["motoko"] = st.session_state.conversation["motoko"][:-4 or None]
+
 # see info box
 def info_box():
 
@@ -110,6 +119,9 @@ def chat_menu():
             # initialize a prompt by joining conversation history into a variable
             text_block = '\n\n\n'.join(st.session_state.conversation["motoko"])
 
+            # check length of prompt and shorten if over 1k words
+            word_count(text_block)
+
             # prefix the prompt by appending the text_block to the propmt.txt
             prompt = open_file('promptchat_motoko.txt').replace('<<BLOCK>>', text_block)
 
@@ -124,6 +136,7 @@ def chat_menu():
 
             # some inline CSS to help with styling the response, write the response to the screen
             st.write(f'<p style="font-size: 1.5rem; padding: 10px;">{response}</p>', unsafe_allow_html=True)
+            st.write(st.session_state.conversation["motoko"])
 
             # reset the session state
             st.session_state.check["motoko"] = False
