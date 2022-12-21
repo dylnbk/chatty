@@ -91,7 +91,7 @@ def chat_menu():
     # create a form  
     with st.form("input_motoko", clear_on_submit=True):     
 
-        # text area for user input limited to 1k chars
+        # text area for user input limited to 500 chars
         user_input = st.text_area('Enter a message:', max_chars=500)
 
         # submit button with onclick that udpates session state 
@@ -103,17 +103,25 @@ def chat_menu():
         # if the form is submitted, create and write the response
         if st.session_state.check["motoko"]:
 
-            # get user input and insert into the prompt
+            # get user input and append to the conversation list
             st.session_state.conversation["motoko"].append(f'You: {user_input}')
+
+            # initialize a prompt by joining conversation history into a variable
             text_block = '\n\n\n'.join(st.session_state.conversation["motoko"])
+
+            # prefix the prompt by appending the text_block to the propmt.txt
             prompt = open_file('promptchat_motoko.txt').replace('<<BLOCK>>', text_block)
+
+            # finish prompt by appending the chatbot name 'Motoko: {content will be generated here}'
             prompt = prompt + '\n\nMotoko: '
 
-            # request completetion 
+            # request and store GPT completetion 
             response = gpt3_completion(prompt)
 
-            # append motoko response & write the response
+            # append chatbot response
             st.session_state.conversation["motoko"].append(f'Motoko: {response}')
+
+            # some inline CSS to help with styling the response, write the response to the screen
             st.write(f'<p style="font-size: 1.5rem; padding: 10px;">{response}</p>', unsafe_allow_html=True)
 
             # reset the session state
@@ -125,7 +133,7 @@ def summary_menu():
     # create a form  
     with st.form("input_summarise", clear_on_submit=True):   
 
-        # text area for user input limited to 1k chars
+        # text area for user input limited to 1.5k chars
         user_input = st.text_area('Enter a message:', max_chars=1500)
 
         # submit button with onclick that udpates session state 
@@ -137,7 +145,7 @@ def summary_menu():
         # if the form is submitted, create and write the response
         if st.session_state.check["summarise"]:
 
-            # get user input and insert into the prompt
+            # get user input and insert into the prompt by replacing <<BLOCK>> in the prompt.txt
             text_block = f'{user_input}\n\nSummarize the text using a numeric list:'
             prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
 
@@ -156,7 +164,7 @@ def explain_menu():
     # create a form  
     with st.form("input_explain", clear_on_submit=True):   
 
-        # text area for user input limited to 1k chars
+        # text area for user input limited to 1.5k chars
         user_input = st.text_area('Enter a message:', max_chars=1500)
 
         # submit button with onclick that udpates session state 
@@ -168,7 +176,7 @@ def explain_menu():
         # if the form is submitted, create and write the response
         if st.session_state.check["explain"]:
 
-            # get user input and insert into the prompt
+            # get user input and insert into the prompt by replacing <<BLOCK>> in the prompt.txt
             text_block = f'{user_input}\n\nELI5:'
             prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
 
@@ -187,7 +195,7 @@ def rewrite_menu():
     # create a form  
     with st.form("input_rewrite", clear_on_submit=True):   
 
-        # text area for user input limited to 1k chars
+        # text area for user input limited to 1.5k chars
         user_input = st.text_area('Enter a message:', max_chars=1500)
 
         # submit button with onclick that udpates session state 
@@ -199,7 +207,7 @@ def rewrite_menu():
         # if the form is submitted, create and write the response
         if st.session_state.check["rewrite"]:
 
-            # get user input and insert into the prompt
+            # get user input and insert into the prompt by replacing <<BLOCK>> in the prompt.txt
             text_block = f'Paraphrase this piece of text:\n\n{user_input}'
             prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
 
@@ -218,7 +226,7 @@ def story_menu():
     # create a form  
     with st.form("input_stories", clear_on_submit=True):   
 
-        # text area for user input limited to 1k chars
+        # text area for user input limited to 1.5k chars
         user_input = st.text_area('Enter a message:', max_chars=1500)
 
         # submit button with onclick that udpates session state 
@@ -230,7 +238,7 @@ def story_menu():
         # if the form is submitted, create and write the response
         if st.session_state.check["stories"]:
 
-            # get user input and insert into the prompt
+            # get user input and insert into the prompt by replacing <<BLOCK>> in the prompt.txt
             text_block = f'Use the text below to create a unique story intended for a book:\n\n{user_input}'
             prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
 
@@ -243,6 +251,7 @@ def story_menu():
             # reset the session state
             st.session_state.check["stories"] = False
 
+# seperated as the onclick func does not accept an argument
 # state session check for form submission
 def check_true_motoko():
     st.session_state.check["motoko"] = True
@@ -264,12 +273,14 @@ def check_true_stories():
     st.session_state.check["stories"] = True
 
 # create session state to save the conversation
+# user input and GPT output will be stored here
 if 'conversation' not in st.session_state:
     st.session_state.conversation = {
         "motoko": [],
     }
 
-# create session state for form submission
+# create session state for form submission 
+# this stops streamlit from submiting a prompt when the page loads
 if 'check' not in st.session_state:
     st.session_state.check = {
 
