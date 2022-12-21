@@ -136,7 +136,6 @@ def chat_menu():
 
             # some inline CSS to help with styling the response, write the response to the screen
             st.write(f'<p style="font-size: 1.5rem; padding: 10px;">{response}</p>', unsafe_allow_html=True)
-            st.write(st.session_state.conversation["motoko"])
 
             # reset the session state
             st.session_state.check["motoko"] = False
