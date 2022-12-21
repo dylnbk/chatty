@@ -94,13 +94,14 @@ def chat_menu():
         # text area for user input limited to 500 chars
         user_input = st.text_area('Enter a message:', max_chars=500)
 
-        # submit button with onclick that udpates session state 
+        # submit button with onclick that makes session_state.check = True
         st.form_submit_button("Submit", on_click=check_true_motoko)
 
         # see info box
         info_box()
 
-        # if the form is submitted, create and write the response
+        # if the form is submitted session_state.check will be True
+        # create and write the response to the screen and store conversation
         if st.session_state.check["motoko"]:
 
             # get user input and append to the conversation list
@@ -136,13 +137,13 @@ def summary_menu():
         # text area for user input limited to 1.5k chars
         user_input = st.text_area('Enter a message:', max_chars=1500)
 
-        # submit button with onclick that udpates session state 
+        # submit button with onclick that makes session_state.check = True
         st.form_submit_button("Submit", on_click=check_true_summarise)
 
         # see info box
         info_box()
 
-        # if the form is submitted, create and write the response
+        # if the form is submitted session_state.check will be True - create and write the response
         if st.session_state.check["summarise"]:
 
             # get user input and insert into the prompt by replacing <<BLOCK>> in the prompt.txt
@@ -167,13 +168,13 @@ def explain_menu():
         # text area for user input limited to 1.5k chars
         user_input = st.text_area('Enter a message:', max_chars=1500)
 
-        # submit button with onclick that udpates session state 
+        # submit button with onclick that makes session_state.check = True
         st.form_submit_button("Submit", on_click=check_true_explain)
 
         # see info box
         info_box()
 
-        # if the form is submitted, create and write the response
+        # if the form is submitted session_state.check will be True - create and write the response
         if st.session_state.check["explain"]:
 
             # get user input and insert into the prompt by replacing <<BLOCK>> in the prompt.txt
@@ -198,13 +199,13 @@ def rewrite_menu():
         # text area for user input limited to 1.5k chars
         user_input = st.text_area('Enter a message:', max_chars=1500)
 
-        # submit button with onclick that udpates session state 
+        # submit button with onclick that makes session_state.check = True
         st.form_submit_button("Submit", on_click=check_true_rewrite)
 
         # see info box
         info_box()
 
-        # if the form is submitted, create and write the response
+        # if the form is submitted session_state.check will be True - create and write the response
         if st.session_state.check["rewrite"]:
 
             # get user input and insert into the prompt by replacing <<BLOCK>> in the prompt.txt
@@ -229,13 +230,13 @@ def story_menu():
         # text area for user input limited to 1.5k chars
         user_input = st.text_area('Enter a message:', max_chars=1500)
 
-        # submit button with onclick that udpates session state 
+        # submit button with onclick that makes session_state.check = True
         st.form_submit_button("Submit", on_click=check_true_stories)
 
         # see info box
         info_box()
 
-        # if the form is submitted, create and write the response
+        # if the form is submitted session_state.check will be True - create and write the response
         if st.session_state.check["stories"]:
 
             # get user input and insert into the prompt by replacing <<BLOCK>> in the prompt.txt
