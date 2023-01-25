@@ -117,7 +117,7 @@ def chat_menu():
             st.session_state.conversation["motoko"].append(f'You: {user_input}')
 
             # initialize a prompt by joining conversation history into a variable
-            text_block = '\n\n\n'.join(st.session_state.conversation["motoko"])
+            text_block = ''.join(st.session_state.conversation["motoko"])
 
             # check length of prompt and shorten if over 1k words
             word_count(text_block)
@@ -126,7 +126,7 @@ def chat_menu():
             prompt = open_file('promptchat_motoko.txt').replace('<<BLOCK>>', text_block)
 
             # finish prompt by appending the chatbot name 'Motoko: {content will be generated here}'
-            prompt = prompt + '\n\nMotoko: '
+            prompt = prompt + 'Motoko: '
 
             # request and store GPT completetion 
             response = gpt3_completion(prompt)
@@ -136,6 +136,11 @@ def chat_menu():
 
             # some inline CSS to help with styling the response, write the response to the screen
             st.write(f'<p style="font-size: 1.5rem; padding: 10px;">{response}</p>', unsafe_allow_html=True)
+
+            # create an info box
+            with st.expander("Chat history"):
+
+                st.write(st.session_state.conversation["motoko"])
 
             # reset the session state
             st.session_state.check["motoko"] = False
