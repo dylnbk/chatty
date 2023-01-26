@@ -134,13 +134,14 @@ def chat_menu():
             # append chatbot response
             st.session_state.conversation["motoko"].append(f'Motoko: {response}')
 
-            # some inline CSS to help with styling the response, write the response to the screen
-            st.write(f'<p style="font-size: 1.5rem; padding: 10px;">{response}</p>', unsafe_allow_html=True)
+            # reverse the list so that last message displays at the top
+            history = reversed(st.session_state.conversation["motoko"])
 
-            # create an info box
-            with st.expander("Chat history"):
+            # iterate through the messages
+            for message in history:
 
-                st.write(st.session_state.conversation["motoko"])
+                # some inline CSS to help with styling the response, write the response to the screen
+                st.write(f'<p style="font-size: 1.5rem; padding: 10px;">{message}</p>', unsafe_allow_html=True)
 
             # reset the session state
             st.session_state.check["motoko"] = False
