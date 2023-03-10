@@ -12,25 +12,13 @@ def open_file(filepath):
         return infile.read()
 
 # GPT3 request
-def gpt3_completion(prompt, engine='text-davinci-003', temp=0.7, top_p=1, tokens=2500, freq_pen=0.7, pres_pen=0.0, stop=['Motoko:', 'You:']):
-
-    # clean prompt of unsupported characters
-    prompt = prompt.encode(encoding='ASCII',errors='ignore').decode()
+def gpt3_completion(derp):
 
     # fetch response
-    response = openai.Completion.create(
-        engine=engine,
-        prompt=prompt,
-        temperature=temp,
-        max_tokens=tokens,
-        top_p=top_p,
-        frequency_penalty=freq_pen,
-        presence_penalty=pres_pen,
-        stop=stop)
+    response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=derp)
     
-    # strip & return motoko response
-    text = response['choices'][0]['text'].strip()
-    return text
+    # return response
+    return response["choices"][0]["message"]["content"]
 
 # count words
 def word_count(string):
@@ -101,7 +89,7 @@ def chat_menu():
     with st.form("input_motoko", clear_on_submit=True):     
 
         # text area for user input limited to 500 chars
-        user_input = st.text_area('Enter a message:', max_chars=500)
+        user_input = st.text_area('Enter a message:', max_chars=1000)
 
         # submit button with onclick that makes session_state.check = True
         st.form_submit_button("Submit", on_click=check_true_motoko)
@@ -113,35 +101,36 @@ def chat_menu():
         # create and write the response to the screen and store conversation
         if st.session_state.check["motoko"]:
 
+            # clean prompt of unsupported characters
+            user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
+            prompt = {"role": "user", "content": user_input}
+
             # get user input and append to the conversation list
-            st.session_state.conversation["motoko"].append(f'You: {user_input}')
-
-            # initialize a prompt by joining conversation history into a variable
-            text_block = ''.join(st.session_state.conversation["motoko"])
-
-            # check length of prompt and shorten if over 1k words
-            word_count(text_block)
-
-            # prefix the prompt by appending the text_block to the propmt.txt
-            prompt = open_file('promptchat_motoko.txt').replace('<<BLOCK>>', text_block)
-
-            # finish prompt by appending the chatbot name 'Motoko: {content will be generated here}'
-            prompt = prompt + 'Motoko: '
+            st.session_state.conversation["motoko"].append(prompt)
 
             # request and store GPT completetion 
-            response = gpt3_completion(prompt)
+            response = gpt3_completion(st.session_state.conversation["motoko"])
 
             # append chatbot response
-            st.session_state.conversation["motoko"].append(f'Motoko: {response}')
-
+            st.session_state.conversation["motoko"].append({"role": "assistant", "content": response})
+            
             # reverse the list so that last message displays at the top
-            history = reversed(st.session_state.conversation["motoko"])
+            reverse_iterator = reversed(st.session_state.conversation["motoko"])
+            history = list(reverse_iterator)
 
             # iterate through the messages
-            for message in history:
+            for count, message in enumerate(history[:-1]):
+                
+                if count % 2 != 0:
+                    # write the response to the screen
+                    st.markdown("_You:_")
+                    st.write(message['content'])
+                    st.write("")
 
-                # some inline CSS to help with styling the response, write the response to the screen
-                st.write(f'<p style="font-size: 1.5rem; padding: 10px;">{message}</p>', unsafe_allow_html=True)
+                else:
+                    st.markdown("_Motoko:_")
+                    st.write(message['content'])
+                    st.write("")
 
             # reset the session state
             st.session_state.check["motoko"] = False
@@ -153,7 +142,7 @@ def summary_menu():
     with st.form("input_summarise", clear_on_submit=True):   
 
         # text area for user input limited to 1.5k chars
-        user_input = st.text_area('Enter a message:', max_chars=1500)
+        user_input = st.text_area('Enter a message:', max_chars=2000)
 
         # submit button with onclick that makes session_state.check = True
         st.form_submit_button("Submit", on_click=check_true_summarise)
@@ -164,15 +153,36 @@ def summary_menu():
         # if the form is submitted session_state.check will be True - create and write the response
         if st.session_state.check["summarise"]:
 
-            # get user input and insert into the prompt by replacing <<BLOCK>> in the prompt.txt
-            text_block = f'{user_input}\n\nSummarize the text using a numeric list:'
-            prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
+            # clean prompt of unsupported characters
+            user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
+            prompt = {"role": "user", "content": user_input}
 
-            # request completetion 
-            response = gpt3_completion(prompt)
+            # get user input and append to the conversation list
+            st.session_state.conversation["summarise"].append(prompt)
 
-            # write the response
-            st.write(response)
+            # request and store GPT completetion 
+            response = gpt3_completion(st.session_state.conversation["summarise"])
+
+            # append chatbot response
+            st.session_state.conversation["summarise"].append({"role": "assistant", "content": response})
+            
+            # reverse the list so that last message displays at the top
+            reverse_iterator = reversed(st.session_state.conversation["summarise"])
+            history = list(reverse_iterator)
+
+            # iterate through the messages
+            for count, message in enumerate(history[:-1]):
+                
+                if count % 2 != 0:
+                    # write the response to the screen
+                    st.markdown("_You:_")
+                    st.write(message['content'])
+                    st.write("")
+
+                else:
+                    st.markdown("_Motoko:_")
+                    st.write(message['content'])
+                    st.write("")
 
             # reset the session state
             st.session_state.check["summarise"] = False
@@ -184,7 +194,7 @@ def explain_menu():
     with st.form("input_explain", clear_on_submit=True):   
 
         # text area for user input limited to 1.5k chars
-        user_input = st.text_area('Enter a message:', max_chars=1500)
+        user_input = st.text_area('Enter a message:', max_chars=2000)
 
         # submit button with onclick that makes session_state.check = True
         st.form_submit_button("Submit", on_click=check_true_explain)
@@ -195,15 +205,36 @@ def explain_menu():
         # if the form is submitted session_state.check will be True - create and write the response
         if st.session_state.check["explain"]:
 
-            # get user input and insert into the prompt by replacing <<BLOCK>> in the prompt.txt
-            text_block = f'{user_input}\n\nELI5:'
-            prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
+            # clean prompt of unsupported characters
+            user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
+            prompt = {"role": "user", "content": user_input}
 
-            # request completetion 
-            response = gpt3_completion(prompt)
+            # get user input and append to the conversation list
+            st.session_state.conversation["explain"].append(prompt)
 
-            # write the response
-            st.write(response)
+            # request and store GPT completetion 
+            response = gpt3_completion(st.session_state.conversation["explain"])
+
+            # append chatbot response
+            st.session_state.conversation["explain"].append({"role": "assistant", "content": response})
+            
+            # reverse the list so that last message displays at the top
+            reverse_iterator = reversed(st.session_state.conversation["explain"])
+            history = list(reverse_iterator)
+
+            # iterate through the messages
+            for count, message in enumerate(history[:-1]):
+                
+                if count % 2 != 0:
+                    # write the response to the screen
+                    st.markdown("_You:_")
+                    st.write(message['content'])
+                    st.write("")
+
+                else:
+                    st.markdown("_Motoko:_")
+                    st.write(message['content'])
+                    st.write("")
 
             # reset the session state
             st.session_state.check["explain"] = False
@@ -215,7 +246,7 @@ def rewrite_menu():
     with st.form("input_rewrite", clear_on_submit=True):   
 
         # text area for user input limited to 1.5k chars
-        user_input = st.text_area('Enter a message:', max_chars=1500)
+        user_input = st.text_area('Enter a message:', max_chars=2000)
 
         # submit button with onclick that makes session_state.check = True
         st.form_submit_button("Submit", on_click=check_true_rewrite)
@@ -226,15 +257,36 @@ def rewrite_menu():
         # if the form is submitted session_state.check will be True - create and write the response
         if st.session_state.check["rewrite"]:
 
-            # get user input and insert into the prompt by replacing <<BLOCK>> in the prompt.txt
-            text_block = f'Paraphrase this piece of text:\n\n{user_input}'
-            prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
+            # clean prompt of unsupported characters
+            user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
+            prompt = {"role": "user", "content": user_input}
 
-            # request completetion 
-            response = gpt3_completion(prompt)
+            # get user input and append to the conversation list
+            st.session_state.conversation["rewrite"].append(prompt)
 
-            # write the response
-            st.write(response)
+            # request and store GPT completetion 
+            response = gpt3_completion(st.session_state.conversation["rewrite"])
+
+            # append chatbot response
+            st.session_state.conversation["rewrite"].append({"role": "assistant", "content": response})
+            
+            # reverse the list so that last message displays at the top
+            reverse_iterator = reversed(st.session_state.conversation["rewrite"])
+            history = list(reverse_iterator)
+
+            # iterate through the messages
+            for count, message in enumerate(history[:-1]):
+                
+                if count % 2 != 0:
+                    # write the response to the screen
+                    st.markdown("_You:_")
+                    st.write(message['content'])
+                    st.write("")
+
+                else:
+                    st.markdown("_Motoko:_")
+                    st.write(message['content'])
+                    st.write("")
 
             # reset the session state
             st.session_state.check["rewrite"] = False
@@ -246,7 +298,7 @@ def story_menu():
     with st.form("input_stories", clear_on_submit=True):   
 
         # text area for user input limited to 1.5k chars
-        user_input = st.text_area('Enter a message:', max_chars=1500)
+        user_input = st.text_area('Enter a message:', max_chars=2000)
 
         # submit button with onclick that makes session_state.check = True
         st.form_submit_button("Submit", on_click=check_true_stories)
@@ -257,15 +309,36 @@ def story_menu():
         # if the form is submitted session_state.check will be True - create and write the response
         if st.session_state.check["stories"]:
 
-            # get user input and insert into the prompt by replacing <<BLOCK>> in the prompt.txt
-            text_block = f'Use the text below to create a unique story intended for a book:\n\n{user_input}'
-            prompt = open_file('promptchat_default.txt').replace('<<BLOCK>>', text_block)
+            # clean prompt of unsupported characters
+            user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
+            prompt = {"role": "user", "content": user_input}
 
-            # request completetion 
-            response = gpt3_completion(prompt)
+            # get user input and append to the conversation list
+            st.session_state.conversation["stories"].append(prompt)
 
-            # write the response
-            st.write(response)
+            # request and store GPT completetion 
+            response = gpt3_completion(st.session_state.conversation["stories"])
+
+            # append chatbot response
+            st.session_state.conversation["stories"].append({"role": "assistant", "content": response})
+            
+            # reverse the list so that last message displays at the top
+            reverse_iterator = reversed(st.session_state.conversation["stories"])
+            history = list(reverse_iterator)
+
+            # iterate through the messages
+            for count, message in enumerate(history[:-1]):
+                
+                if count % 2 != 0:
+                    # write the response to the screen
+                    st.markdown("_You:_")
+                    st.write(message['content'])
+                    st.write("")
+
+                else:
+                    st.markdown("_Motoko:_")
+                    st.write(message['content'])
+                    st.write("")
 
             # reset the session state
             st.session_state.check["stories"] = False
@@ -295,8 +368,27 @@ def check_true_stories():
 # user input and GPT output will be stored here
 if 'conversation' not in st.session_state:
     st.session_state.conversation = {
-        "motoko": [],
+        "motoko": [
+            {"role": "system", "content": "You are a sarcastic robot assistant, you like to make bad jokes but eventually give the correct answer."},
+        ],
+
+        "summarise": [
+            {"role": "system", "content": "You are a helpful assistant that summerizes text into a numbered list"},
+        ],
+
+        "explain": [
+            {"role": "system", "content": "You are a helpful assistant that explains text in a simplified manner, easy enough for a child to understand (ELI5)."},
+        ],
+
+        "rewrite": [
+            {"role": "system", "content": "You are a helpful assistant that rewrites text using other words."},
+        ],
+
+        "stories": [
+            {"role": "system", "content": "You are a helpful assistant that writes an entire story based on whatever the user provides"},
+        ],
     }
+    
 
 # create session state for form submission 
 # this stops streamlit from submiting a prompt when the page loads
@@ -361,4 +453,4 @@ if __name__ == '__main__':
 
     # pain
     except Exception as e:
-                st.error(f"Something went wrong...", icon="💔")
+                st.error(f"Something went wrong...\n{e}", icon="💔")
