@@ -20,15 +20,6 @@ def gpt3_completion(derp):
     # return response
     return response["choices"][0]["message"]["content"]
 
-# count words
-def word_count(string):
-
-    # if total count of words > 1000
-    if len(string.strip().split(" ")) > 1000:
-
-        # slice/delete the last entries from the conversation
-        st.session_state.conversation["motoko"] = st.session_state.conversation["motoko"][:-4 or None]
-
 # see info box
 def info_box():
 
