@@ -12,13 +12,41 @@ def open_file(filepath):
         return infile.read()
 
 # GPT3 request
-def gpt3_completion(derp):
+def gpt3_completion(messages):
 
     # fetch response
-    response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=derp)
+    response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
+
+    response_length = response["usage"]["total_tokens"]
+    response = response["choices"][0]["message"]["content"]
     
-    # return response
-    return response["choices"][0]["message"]["content"]
+    # return response & token length
+    return response, response_length
+
+# limit prompt length 
+def prompt_limit(conversation_type, prompt_length):
+
+    if prompt_length > 3500:
+
+        if conversation_type == "motoko":
+
+            del st.session_state.conversation["motoko"][1:3]
+
+        elif conversation_type == "summarise":
+
+            del st.session_state.conversation["summarise"][1:3]
+
+        elif conversation_type == "explain":
+            
+            del st.session_state.conversation["explain"][1:3]
+        
+        elif conversation_type == "rewrite":
+            
+            del st.session_state.conversation["rewrite"][1:3]
+        
+        elif conversation_type == "stories":
+            
+            del st.session_state.conversation["stories"][1:3]
 
 # see info box
 def info_box():
@@ -40,7 +68,7 @@ def info_box():
 
         st.write("""
             ##### Chat
-            - A friendly AI that simply wants to have a conversation!
+            - An AI assistant that you can have a conversation with!
             """)
         
         st.write("***")
@@ -100,7 +128,9 @@ def chat_menu():
             st.session_state.conversation["motoko"].append(prompt)
 
             # request and store GPT completetion 
-            response = gpt3_completion(st.session_state.conversation["motoko"])
+            response, response_length = gpt3_completion(st.session_state.conversation["motoko"])
+
+            prompt_limit("motoko", response_length)
 
             # append chatbot response
             st.session_state.conversation["motoko"].append({"role": "assistant", "content": response})
@@ -152,7 +182,9 @@ def summary_menu():
             st.session_state.conversation["summarise"].append(prompt)
 
             # request and store GPT completetion 
-            response = gpt3_completion(st.session_state.conversation["summarise"])
+            response, response_length = gpt3_completion(st.session_state.conversation["summarise"])
+
+            prompt_limit("summarise", response_length)
 
             # append chatbot response
             st.session_state.conversation["summarise"].append({"role": "assistant", "content": response})
@@ -204,7 +236,9 @@ def explain_menu():
             st.session_state.conversation["explain"].append(prompt)
 
             # request and store GPT completetion 
-            response = gpt3_completion(st.session_state.conversation["explain"])
+            response, response_length = gpt3_completion(st.session_state.conversation["explain"])
+            
+            prompt_limit("explain", response_length)
 
             # append chatbot response
             st.session_state.conversation["explain"].append({"role": "assistant", "content": response})
@@ -256,7 +290,9 @@ def rewrite_menu():
             st.session_state.conversation["rewrite"].append(prompt)
 
             # request and store GPT completetion 
-            response = gpt3_completion(st.session_state.conversation["rewrite"])
+            response, response_length = gpt3_completion(st.session_state.conversation["rewrite"])
+            
+            prompt_limit("rewrite", response_length)
 
             # append chatbot response
             st.session_state.conversation["rewrite"].append({"role": "assistant", "content": response})
@@ -308,7 +344,9 @@ def story_menu():
             st.session_state.conversation["stories"].append(prompt)
 
             # request and store GPT completetion 
-            response = gpt3_completion(st.session_state.conversation["stories"])
+            response, response_length = gpt3_completion(st.session_state.conversation["stories"])
+            
+            prompt_limit("stories", response_length)
 
             # append chatbot response
             st.session_state.conversation["stories"].append({"role": "assistant", "content": response})
