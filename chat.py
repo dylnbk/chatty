@@ -30,23 +30,23 @@ def prompt_limit(conversation_type, prompt_length):
 
         if conversation_type == "motoko":
 
-            del st.session_state.conversation["motoko"][1:3]
+            del st.session_state.conversation["motoko"][1:5]
 
         elif conversation_type == "summarise":
 
-            del st.session_state.conversation["summarise"][1:3]
+            del st.session_state.conversation["summarise"][1:5]
 
         elif conversation_type == "explain":
             
-            del st.session_state.conversation["explain"][1:3]
+            del st.session_state.conversation["explain"][1:5]
         
         elif conversation_type == "rewrite":
             
-            del st.session_state.conversation["rewrite"][1:3]
+            del st.session_state.conversation["rewrite"][1:5]
         
         elif conversation_type == "stories":
             
-            del st.session_state.conversation["stories"][1:3]
+            del st.session_state.conversation["stories"][1:5]
 
 # see info box
 def info_box():
