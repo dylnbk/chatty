@@ -108,7 +108,7 @@ def chat_menu():
     with st.form("input_motoko", clear_on_submit=True):     
 
         # text area for user input limited to 500 chars
-        user_input = st.text_area('Enter a message:', max_chars=1000)
+        user_input = st.text_area('Enter a message:', max_chars=2500)
 
         # submit button with onclick that makes session_state.check = True
         st.form_submit_button("Submit", on_click=check_true_motoko)
@@ -163,7 +163,7 @@ def summary_menu():
     with st.form("input_summarise", clear_on_submit=True):   
 
         # text area for user input limited to 1.5k chars
-        user_input = st.text_area('Enter a message:', max_chars=2000)
+        user_input = st.text_area('Enter a message:', max_chars=2500)
 
         # submit button with onclick that makes session_state.check = True
         st.form_submit_button("Submit", on_click=check_true_summarise)
@@ -217,7 +217,7 @@ def explain_menu():
     with st.form("input_explain", clear_on_submit=True):   
 
         # text area for user input limited to 1.5k chars
-        user_input = st.text_area('Enter a message:', max_chars=2000)
+        user_input = st.text_area('Enter a message:', max_chars=2500)
 
         # submit button with onclick that makes session_state.check = True
         st.form_submit_button("Submit", on_click=check_true_explain)
@@ -271,7 +271,7 @@ def rewrite_menu():
     with st.form("input_rewrite", clear_on_submit=True):   
 
         # text area for user input limited to 1.5k chars
-        user_input = st.text_area('Enter a message:', max_chars=2000)
+        user_input = st.text_area('Enter a message:', max_chars=2500)
 
         # submit button with onclick that makes session_state.check = True
         st.form_submit_button("Submit", on_click=check_true_rewrite)
@@ -325,7 +325,7 @@ def story_menu():
     with st.form("input_stories", clear_on_submit=True):   
 
         # text area for user input limited to 1.5k chars
-        user_input = st.text_area('Enter a message:', max_chars=2000)
+        user_input = st.text_area('Enter a message:', max_chars=2500)
 
         # submit button with onclick that makes session_state.check = True
         st.form_submit_button("Submit", on_click=check_true_stories)
