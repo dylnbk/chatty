@@ -26,7 +26,7 @@ def gpt_completion(messages):
 # limit prompt length 
 def prompt_limit(conversation_type, prompt_length):
 
-    if prompt_length > 7000:
+    if prompt_length > 12000:
 
         if conversation_type == "motoko":
 
@@ -45,6 +45,14 @@ def prompt_limit(conversation_type, prompt_length):
             del st.session_state.conversation["rewrite"][1:5]
         
         elif conversation_type == "stories":
+            
+            del st.session_state.conversation["stories"][1:5]
+
+        elif conversation_type == "describe":
+            
+            del st.session_state.conversation["stories"][1:5]
+
+        elif conversation_type == "code":
             
             del st.session_state.conversation["stories"][1:5]
 
@@ -94,8 +102,20 @@ def info_box():
         st.write("***")
 
         st.write("""
+            ##### Describe
+            - Descriptions for things such as items, products, services.
+            """)
+        st.write("***")
+
+        st.write("""
             ##### Story
             - Provide some details & a story will be written about them.
+            """)
+        st.write("***")
+
+        st.write("""
+            ##### Code
+            - A programming assistant, create and debug code.
             """)
 
         st.write("")
@@ -372,6 +392,115 @@ def story_menu():
             # reset the session state
             st.session_state.check["stories"] = False
 
+# create stories menu
+def describe_menu():
+
+    # create a form  
+    with st.form("input_describe", clear_on_submit=True):   
+
+        # text area for user input limited to 1.5k chars
+        user_input = st.text_area('Enter a message:', max_chars=25000)
+
+        # submit button with onclick that makes session_state.check = True
+        st.form_submit_button("Submit", on_click=check_true_describe)
+
+        # see info box
+        info_box()
+
+        # if the form is submitted session_state.check will be True - create and write the response
+        if st.session_state.check["describe"]:
+
+            # clean prompt of unsupported characters
+            user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
+            prompt = {"role": "user", "content": user_input}
+
+            # get user input and append to the conversation list
+            st.session_state.conversation["describe"].append(prompt)
+
+            # request and store GPT completetion 
+            response, response_length = gpt_completion(st.session_state.conversation["describe"])
+            
+            prompt_limit("describe", response_length)
+
+            # append chatbot response
+            st.session_state.conversation["describe"].append({"role": "assistant", "content": response})
+            
+            # reverse the list so that last message displays at the top
+            reverse_iterator = reversed(st.session_state.conversation["describe"])
+            history = list(reverse_iterator)
+
+            # iterate through the messages
+            for count, message in enumerate(history[:-1]):
+                
+                if count % 2 != 0:
+                    # write the response to the screen
+                    st.markdown("_You:_")
+                    st.write(message['content'])
+                    st.write("")
+
+                else:
+                    st.markdown("_Motoko:_")
+                    st.write(message['content'])
+                    st.write("")
+
+            # reset the session state
+            st.session_state.check["describe"] = False
+
+# create stories menu
+def code_menu():
+
+    # create a form  
+    with st.form("input_code", clear_on_submit=True):   
+
+        # text area for user input limited to 1.5k chars
+        user_input = st.text_area('Enter a message:', max_chars=25000)
+
+        # submit button with onclick that makes session_state.check = True
+        st.form_submit_button("Submit", on_click=check_true_code)
+
+        # see info box
+        info_box()
+
+        # if the form is submitted session_state.check will be True - create and write the response
+        if st.session_state.check["code"]:
+
+            # clean prompt of unsupported characters
+            user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
+            prompt = {"role": "user", "content": user_input}
+
+            # get user input and append to the conversation list
+            st.session_state.conversation["code"].append(prompt)
+
+            # request and store GPT completetion 
+            response, response_length = gpt_completion(st.session_state.conversation["code"])
+            
+            prompt_limit("code", response_length)
+
+            # append chatbot response
+            st.session_state.conversation["code"].append({"role": "assistant", "content": response})
+            
+            # reverse the list so that last message displays at the top
+            reverse_iterator = reversed(st.session_state.conversation["code"])
+            history = list(reverse_iterator)
+
+            # iterate through the messages
+            for count, message in enumerate(history[:-1]):
+                
+                if count % 2 != 0:
+                    # write the response to the screen
+                    st.markdown("_You:_")
+                    st.write(message['content'])
+                    st.write("")
+
+                else:
+                    st.markdown("_Motoko:_")
+                    st.write(message['content'])
+                    st.write("")
+
+            # reset the session state
+            st.session_state.check["code"] = False
+
+
 # seperated as the onclick func does not accept an argument
 # state session check for form submission
 def check_true_motoko():
@@ -392,6 +521,14 @@ def check_true_rewrite():
 # state session check for form submission
 def check_true_stories():
     st.session_state.check["stories"] = True
+
+# state session check for form submission
+def check_true_describe():
+    st.session_state.check["describe"] = True
+
+# state session check for form submission
+def check_true_code():
+    st.session_state.check["code"] = True
 
 # create session state to save the conversation
 # user input and GPT output will be stored here
@@ -416,6 +553,14 @@ if 'conversation' not in st.session_state:
         "stories": [
             {"role": "system", "content": "You are a helpful assistant that writes an entire story based on whatever the user provides"},
         ],
+
+        "describe": [
+            {"role": "system", "content": "You are a helpful assistant that writes descriptions, particularly aimed at products and services"},
+        ],
+
+        "code": [
+            {"role": "system", "content": "You are a helpful assistant that writes and debugs code in different programming languages"},
+        ],
     }
     
 
@@ -428,7 +573,9 @@ if 'check' not in st.session_state:
         "summarise": False,
         "explain": False,
         "rewrite": False,
-        "stories": False
+        "stories": False,
+        "describe": False,
+        "code": False
     }
 
 # page configurations
@@ -451,7 +598,7 @@ if __name__ == '__main__':
     st.title('Ask it.')    
 
     # define tabs
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Chat", "Summarize", "Explain", "Rewrite", "Story"])
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Chat", "Summarize", "Explain", "Rewrite", "Describe", "Story", "Code"])
 
     try:
 
@@ -475,10 +622,20 @@ if __name__ == '__main__':
 
             rewrite_menu()
 
-        # stories
+        # descriptions
         with tab5:
 
+            describe_menu()
+
+        # stories
+        with tab6:
+
             story_menu()
+
+        # code
+        with tab7:
+
+            code_menu()
 
     # pain
     except Exception as e:
