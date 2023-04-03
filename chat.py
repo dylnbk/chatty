@@ -26,7 +26,7 @@ def gpt_completion(messages):
 # limit prompt length 
 def prompt_limit(conversation_type, prompt_length):
 
-    if prompt_length > 12000:
+    if prompt_length > 10000:
 
         if conversation_type == "motoko":
 
