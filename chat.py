@@ -601,41 +601,51 @@ if __name__ == '__main__':
     tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["Chat", "Summarize", "Explain", "Rewrite", "Describe", "Story", "Code"])
 
     try:
+        
+        # Create a password input field
+        PASS = st.secrets["passw"]
+        password = st.sidebar.text_input("Enter password", type="password")
 
-        # chatbot
-        with tab1:
+        if password == PASS:
 
-            chat_menu()
+            # chatbot
+            with tab1:
 
-        # summarise
-        with tab2:
+                chat_menu()
 
-            summary_menu()
+            # summarise
+            with tab2:
 
-        # explain
-        with tab3:
+                summary_menu()
 
-            explain_menu()
+            # explain
+            with tab3:
 
-        # re-write
-        with tab4:
+                explain_menu()
 
-            rewrite_menu()
+            # re-write
+            with tab4:
 
-        # descriptions
-        with tab5:
+                rewrite_menu()
 
-            describe_menu()
+            # descriptions
+            with tab5:
 
-        # stories
-        with tab6:
+                describe_menu()
 
-            story_menu()
+            # stories
+            with tab6:
 
-        # code
-        with tab7:
+                story_menu()
 
-            code_menu()
+            # code
+            with tab7:
+
+                code_menu()
+
+        else:
+
+            st.header("Password required")
 
     # pain
     except Exception as e:
