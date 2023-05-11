@@ -1002,10 +1002,6 @@ if __name__ == '__main__':
 
                 code_menu()
 
-        else:
-
-            st.header("Password required")
-
     # pain
     except Exception as e:
                 st.error(f"Something went wrong...\n{e}", icon="💔")
