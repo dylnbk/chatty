@@ -344,7 +344,7 @@ def chat_menu():
                     if not messages:
 
                         # create title
-                        conversation_title = f"{current_date} - {user_input}"
+                        conversation_title = f"{current_date} - {user_input[:50]}"
                         init_messages = [{"role": "system", "content": "You are a sarcastic robot assistant, you like to make bad jokes but eventually give the correct answer."}]
 
                         # Retrieve the existing messages dictionary, update 
@@ -490,7 +490,7 @@ def summary_menu():
                     if not messages:
 
                         # create title
-                        conversation_title = f"{current_date} - {user_input}"
+                        conversation_title = f"{current_date} - {user_input[:50]}"
                         init_messages = [{"role": "system", "content": "You are a helpful assistant that summerizes text into a numbered list"}]
 
                         # Retrieve the existing messages dictionary, update 
@@ -636,7 +636,7 @@ def explain_menu():
                     if not messages:
 
                         # create title
-                        conversation_title = f"{current_date} - {user_input}"
+                        conversation_title = f"{current_date} - {user_input[:50]}"
                         init_messages = [{"role": "system", "content": "You are a helpful assistant that explains text in a simplified manner, easy enough for a child to understand (ELI5)."}]
 
                         # Retrieve the existing messages dictionary, update 
@@ -782,7 +782,7 @@ def rewrite_menu():
                     if not messages:
 
                         # create title
-                        conversation_title = f"{current_date} - {user_input}"
+                        conversation_title = f"{current_date} - {user_input[:50]}"
                         init_messages = [{"role": "system", "content": "You are a helpful assistant that rewrites text using other words."}]
 
                         # Retrieve the existing messages dictionary, update 
@@ -928,7 +928,7 @@ def story_menu():
                     if not messages:
 
                         # create title
-                        conversation_title = f"{current_date} - {user_input}"
+                        conversation_title = f"{current_date} - {user_input[:50]}"
                         init_messages = [{"role": "system", "content": "You are a helpful assistant that writes an entire story based on content that the user provides"}]
 
                         # Retrieve the existing messages dictionary, update 
@@ -1074,7 +1074,7 @@ def describe_menu():
                     if not messages:
 
                         # create title
-                        conversation_title = f"{current_date} - {user_input}"
+                        conversation_title = f"{current_date} - {user_input[:50]}"
                         init_messages = [{"role": "system", "content": "You are a helpful assistant that writes descriptions, particularly aimed at products and services"}]
 
                         # Retrieve the existing messages dictionary, update 
@@ -1220,7 +1220,7 @@ def code_menu():
                     if not messages:
 
                         # create title
-                        conversation_title = f"{current_date} - {user_input}"
+                        conversation_title = f"{current_date} - {user_input[:50]}"
                         init_messages = [{"role": "system", "content": "You are a helpful assistant that writes and debugs code in different programming languages"}]
 
                         # Retrieve the existing messages dictionary, update 
