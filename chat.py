@@ -176,7 +176,6 @@ def message_history(content):
     else:
         return False, False
         
-
 # gpt request
 def gpt_completion(messages):
 
@@ -437,6 +436,8 @@ def chat_menu():
 # summarize menu
 def summary_menu():
 
+    messages, conversation_title = message_history("summarise")
+
     # create a form  
     with st.form("input_summarise", clear_on_submit=True):   
 
@@ -449,47 +450,139 @@ def summary_menu():
         # see info box
         info_box()
 
+        if messages:
+            
+            if not st.session_state.check["summarise"]:
+
+                reverse_messages = reversed(messages)
+                sorted_messages = list(reverse_messages)
+
+                for count, message in enumerate(sorted_messages[:-1]):
+
+                    if count % 2 != 0:
+                        # write the response to the screen
+                        st.markdown(f"_{user}:_")
+                        st.write(message['content'])
+                        st.write("")
+
+                    else:
+                        st.markdown("_Motoko:_")
+                        st.write(message['content'])
+                        st.write("")
+
         # if the form is submitted session_state.check will be True - create and write the response
         if st.session_state.check["summarise"]:
 
-            # clean prompt of unsupported characters
-            user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
-            prompt = {"role": "user", "content": user_input}
+            # if logged in
+            if user:
 
-            # get user input and append to the conversation list
-            st.session_state.conversation["summarise"].append(prompt)
+                # get date
+                current_date = datetime.now().strftime("%d/%m/%y %H:%M")
 
-            # request and store GPT completetion 
-            response, response_length = gpt_completion(st.session_state.conversation["summarise"])
-
-            prompt_limit("summarise", response_length)
-
-            # append chatbot response
-            st.session_state.conversation["summarise"].append({"role": "assistant", "content": response})
-            
-            # reverse the list so that last message displays at the top
-            reverse_iterator = reversed(st.session_state.conversation["summarise"])
-            history = list(reverse_iterator)
-
-            # iterate through the messages
-            for count, message in enumerate(history[:-1]):
+                # clean prompt of unsupported characters
+                user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
+                prompt = {"role": "user", "content": user_input}
                 
-                if count % 2 != 0:
-                    # write the response to the screen
-                    st.markdown("_You:_")
-                    st.write(message['content'])
-                    st.write("")
+                try:
+                    
+                    data = db.get(user)
 
-                else:
-                    st.markdown("_Motoko:_")
-                    st.write(message['content'])
-                    st.write("")
+                    if not messages:
 
-            # reset the session state
-            st.session_state.check["summarise"] = False
+                        # create title
+                        conversation_title = f"{current_date} - {user_input}"
+                        init_messages = [{"role": "system", "content": "You are a helpful assistant that summerizes text into a numbered list"}]
+
+                        # Retrieve the existing messages dictionary, update 
+                        code_messages_dict = data['conversations']['summarise']['messages']
+                        code_messages_dict[conversation_title] = init_messages
+
+                        db.put(data, user)
+
+                    
+                    target_prompt = data["conversations"]["summarise"]["messages"].get(conversation_title)
+                    target_prompt.append(prompt)
+                    db.put(data, user)
+
+                    # request and store GPT completetion 
+                    complete_prompt = db.get(user)["conversations"]["summarise"]["messages"].get(conversation_title)
+                    response, response_length = gpt_completion(complete_prompt)
+
+                    # prompt_limit("code", response_length) <------------------------------------------------ need to create a new function to handle logged in users
+                    assistant = {"role": "assistant", "content": response}
+                    target_response = data['conversations']['summarise']['messages'].get(conversation_title)
+                    target_response.append(assistant)
+                    db.put(data, user)
+
+                    complete_messages = db.get(user)["conversations"]["summarise"]["messages"].get(conversation_title)
+
+                    reverse_complete_messages = reversed(complete_messages)
+                    sorted_complete_messages = list(reverse_complete_messages)
+
+                    for count, message in enumerate(sorted_complete_messages[:-1]):
+
+                        if count % 2 != 0:
+                            # write the response to the screen
+                            st.markdown(f"_{user}:_")
+                            st.write(message['content'])
+                            st.write("")
+
+                        else:
+                            st.markdown("_Motoko:_")
+                            st.write(message['content'])
+                            st.write("")
+
+                    # reset the session state
+                    st.session_state.check["summarise"] = False
+                    
+                # pain
+                except Exception as e:
+                            st.error(f"DB2\n{e}", icon="💔")
+
+            else:
+
+                # clean prompt of unsupported characters
+                user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
+                prompt = {"role": "user", "content": user_input}
+
+                # get user input and append to the conversation list
+                st.session_state.conversation["summarise"].append(prompt)
+
+                # request and store GPT completetion 
+                response, response_length = gpt_completion(st.session_state.conversation["summarise"])
+
+                prompt_limit("summarise", response_length)
+
+                assistant = {"role": "assistant", "content": response}
+
+                # append chatbot response
+                st.session_state.conversation["summarise"].append(assistant)
+                
+                # reverse the list so that last message displays at the top
+                reverse_iterator = reversed(st.session_state.conversation["summarise"])
+                history = list(reverse_iterator)
+
+                # iterate through the messages
+                for count, message in enumerate(history[:-1]):
+                    
+                    if count % 2 != 0:
+                        # write the response to the screen
+                        st.markdown("_You:_")
+                        st.write(message['content'])
+                        st.write("")
+
+                    else:
+                        st.markdown("_Motoko:_")
+                        st.write(message['content'])
+                        st.write("")
+
+                # reset the session state
+                st.session_state.check["summarise"] = False
 
 # explain menu
 def explain_menu():
+
+    messages, conversation_title = message_history("explain")
 
     # create a form  
     with st.form("input_explain", clear_on_submit=True):   
@@ -503,47 +596,139 @@ def explain_menu():
         # see info box
         info_box()
 
+        if messages:
+            
+            if not st.session_state.check["explain"]:
+
+                reverse_messages = reversed(messages)
+                sorted_messages = list(reverse_messages)
+
+                for count, message in enumerate(sorted_messages[:-1]):
+
+                    if count % 2 != 0:
+                        # write the response to the screen
+                        st.markdown(f"_{user}:_")
+                        st.write(message['content'])
+                        st.write("")
+
+                    else:
+                        st.markdown("_Motoko:_")
+                        st.write(message['content'])
+                        st.write("")
+
         # if the form is submitted session_state.check will be True - create and write the response
         if st.session_state.check["explain"]:
 
-            # clean prompt of unsupported characters
-            user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
-            prompt = {"role": "user", "content": user_input}
+            # if logged in
+            if user:
 
-            # get user input and append to the conversation list
-            st.session_state.conversation["explain"].append(prompt)
+                # get date
+                current_date = datetime.now().strftime("%d/%m/%y %H:%M")
 
-            # request and store GPT completetion 
-            response, response_length = gpt_completion(st.session_state.conversation["explain"])
-            
-            prompt_limit("explain", response_length)
-
-            # append chatbot response
-            st.session_state.conversation["explain"].append({"role": "assistant", "content": response})
-            
-            # reverse the list so that last message displays at the top
-            reverse_iterator = reversed(st.session_state.conversation["explain"])
-            history = list(reverse_iterator)
-
-            # iterate through the messages
-            for count, message in enumerate(history[:-1]):
+                # clean prompt of unsupported characters
+                user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
+                prompt = {"role": "user", "content": user_input}
                 
-                if count % 2 != 0:
-                    # write the response to the screen
-                    st.markdown("_You:_")
-                    st.write(message['content'])
-                    st.write("")
+                try:
+                    
+                    data = db.get(user)
 
-                else:
-                    st.markdown("_Motoko:_")
-                    st.write(message['content'])
-                    st.write("")
+                    if not messages:
 
-            # reset the session state
-            st.session_state.check["explain"] = False
+                        # create title
+                        conversation_title = f"{current_date} - {user_input}"
+                        init_messages = [{"role": "system", "content": "You are a helpful assistant that explains text in a simplified manner, easy enough for a child to understand (ELI5)."}]
+
+                        # Retrieve the existing messages dictionary, update 
+                        code_messages_dict = data['conversations']['explain']['messages']
+                        code_messages_dict[conversation_title] = init_messages
+
+                        db.put(data, user)
+
+                    
+                    target_prompt = data["conversations"]["explain"]["messages"].get(conversation_title)
+                    target_prompt.append(prompt)
+                    db.put(data, user)
+
+                    # request and store GPT completetion 
+                    complete_prompt = db.get(user)["conversations"]["explain"]["messages"].get(conversation_title)
+                    response, response_length = gpt_completion(complete_prompt)
+
+                    # prompt_limit("code", response_length) <------------------------------------------------ need to create a new function to handle logged in users
+                    assistant = {"role": "assistant", "content": response}
+                    target_response = data['conversations']['explain']['messages'].get(conversation_title)
+                    target_response.append(assistant)
+                    db.put(data, user)
+
+                    complete_messages = db.get(user)["conversations"]["explain"]["messages"].get(conversation_title)
+
+                    reverse_complete_messages = reversed(complete_messages)
+                    sorted_complete_messages = list(reverse_complete_messages)
+
+                    for count, message in enumerate(sorted_complete_messages[:-1]):
+
+                        if count % 2 != 0:
+                            # write the response to the screen
+                            st.markdown(f"_{user}:_")
+                            st.write(message['content'])
+                            st.write("")
+
+                        else:
+                            st.markdown("_Motoko:_")
+                            st.write(message['content'])
+                            st.write("")
+
+                    # reset the session state
+                    st.session_state.check["explain"] = False
+                    
+                # pain
+                except Exception as e:
+                            st.error(f"DB2\n{e}", icon="💔")
+
+            else:
+
+                # clean prompt of unsupported characters
+                user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
+                prompt = {"role": "user", "content": user_input}
+
+                # get user input and append to the conversation list
+                st.session_state.conversation["explain"].append(prompt)
+
+                # request and store GPT completetion 
+                response, response_length = gpt_completion(st.session_state.conversation["explain"])
+                
+                prompt_limit("explain", response_length)
+
+                assistant = {"role": "assistant", "content": response}
+
+                # append chatbot response
+                st.session_state.conversation["explain"].append(assistant)
+                
+                # reverse the list so that last message displays at the top
+                reverse_iterator = reversed(st.session_state.conversation["explain"])
+                history = list(reverse_iterator)
+
+                # iterate through the messages
+                for count, message in enumerate(history[:-1]):
+                    
+                    if count % 2 != 0:
+                        # write the response to the screen
+                        st.markdown("_You:_")
+                        st.write(message['content'])
+                        st.write("")
+
+                    else:
+                        st.markdown("_Motoko:_")
+                        st.write(message['content'])
+                        st.write("")
+
+                # reset the session state
+                st.session_state.check["explain"] = False
 
 # paraphrase menu
 def rewrite_menu():
+
+    messages, conversation_title = message_history("rewrite")
 
     # create a form  
     with st.form("input_rewrite", clear_on_submit=True):   
@@ -557,47 +742,139 @@ def rewrite_menu():
         # see info box
         info_box()
 
+        if messages:
+            
+            if not st.session_state.check["rewrite"]:
+
+                reverse_messages = reversed(messages)
+                sorted_messages = list(reverse_messages)
+
+                for count, message in enumerate(sorted_messages[:-1]):
+
+                    if count % 2 != 0:
+                        # write the response to the screen
+                        st.markdown(f"_{user}:_")
+                        st.write(message['content'])
+                        st.write("")
+
+                    else:
+                        st.markdown("_Motoko:_")
+                        st.write(message['content'])
+                        st.write("")
+
         # if the form is submitted session_state.check will be True - create and write the response
         if st.session_state.check["rewrite"]:
 
-            # clean prompt of unsupported characters
-            user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
-            prompt = {"role": "user", "content": user_input}
+            # if logged in
+            if user:
 
-            # get user input and append to the conversation list
-            st.session_state.conversation["rewrite"].append(prompt)
+                # get date
+                current_date = datetime.now().strftime("%d/%m/%y %H:%M")
 
-            # request and store GPT completetion 
-            response, response_length = gpt_completion(st.session_state.conversation["rewrite"])
-            
-            prompt_limit("rewrite", response_length)
-
-            # append chatbot response
-            st.session_state.conversation["rewrite"].append({"role": "assistant", "content": response})
-            
-            # reverse the list so that last message displays at the top
-            reverse_iterator = reversed(st.session_state.conversation["rewrite"])
-            history = list(reverse_iterator)
-
-            # iterate through the messages
-            for count, message in enumerate(history[:-1]):
+                # clean prompt of unsupported characters
+                user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
+                prompt = {"role": "user", "content": user_input}
                 
-                if count % 2 != 0:
-                    # write the response to the screen
-                    st.markdown("_You:_")
-                    st.write(message['content'])
-                    st.write("")
+                try:
+                    
+                    data = db.get(user)
 
-                else:
-                    st.markdown("_Motoko:_")
-                    st.write(message['content'])
-                    st.write("")
+                    if not messages:
 
-            # reset the session state
-            st.session_state.check["rewrite"] = False
+                        # create title
+                        conversation_title = f"{current_date} - {user_input}"
+                        init_messages = [{"role": "system", "content": "You are a helpful assistant that rewrites text using other words."}]
+
+                        # Retrieve the existing messages dictionary, update 
+                        code_messages_dict = data['conversations']['rewrite']['messages']
+                        code_messages_dict[conversation_title] = init_messages
+
+                        db.put(data, user)
+
+                    
+                    target_prompt = data["conversations"]["rewrite"]["messages"].get(conversation_title)
+                    target_prompt.append(prompt)
+                    db.put(data, user)
+
+                    # request and store GPT completetion 
+                    complete_prompt = db.get(user)["conversations"]["rewrite"]["messages"].get(conversation_title)
+                    response, response_length = gpt_completion(complete_prompt)
+
+                    # prompt_limit("code", response_length) <------------------------------------------------ need to create a new function to handle logged in users
+                    assistant = {"role": "assistant", "content": response}
+                    target_response = data['conversations']['rewrite']['messages'].get(conversation_title)
+                    target_response.append(assistant)
+                    db.put(data, user)
+
+                    complete_messages = db.get(user)["conversations"]["rewrite"]["messages"].get(conversation_title)
+
+                    reverse_complete_messages = reversed(complete_messages)
+                    sorted_complete_messages = list(reverse_complete_messages)
+
+                    for count, message in enumerate(sorted_complete_messages[:-1]):
+
+                        if count % 2 != 0:
+                            # write the response to the screen
+                            st.markdown(f"_{user}:_")
+                            st.write(message['content'])
+                            st.write("")
+
+                        else:
+                            st.markdown("_Motoko:_")
+                            st.write(message['content'])
+                            st.write("")
+
+                    # reset the session state
+                    st.session_state.check["rewrite"] = False
+                    
+                # pain
+                except Exception as e:
+                            st.error(f"DB2\n{e}", icon="💔")
+
+            else:
+
+                # clean prompt of unsupported characters
+                user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
+                prompt = {"role": "user", "content": user_input}
+
+                # get user input and append to the conversation list
+                st.session_state.conversation["rewrite"].append(prompt)
+
+                # request and store GPT completetion 
+                response, response_length = gpt_completion(st.session_state.conversation["rewrite"])
+                
+                prompt_limit("rewrite", response_length)
+
+                assistant = {"role": "assistant", "content": response}
+
+                # append chatbot response
+                st.session_state.conversation["rewrite"].append(assistant)
+                
+                # reverse the list so that last message displays at the top
+                reverse_iterator = reversed(st.session_state.conversation["rewrite"])
+                history = list(reverse_iterator)
+
+                # iterate through the messages
+                for count, message in enumerate(history[:-1]):
+                    
+                    if count % 2 != 0:
+                        # write the response to the screen
+                        st.markdown("_You:_")
+                        st.write(message['content'])
+                        st.write("")
+
+                    else:
+                        st.markdown("_Motoko:_")
+                        st.write(message['content'])
+                        st.write("")
+
+                # reset the session state
+                st.session_state.check["rewrite"] = False
 
 # create stories menu
 def story_menu():
+
+    messages, conversation_title = message_history("stories")
 
     # create a form  
     with st.form("input_stories", clear_on_submit=True):   
@@ -611,47 +888,139 @@ def story_menu():
         # see info box
         info_box()
 
+        if messages:
+            
+            if not st.session_state.check["stories"]:
+
+                reverse_messages = reversed(messages)
+                sorted_messages = list(reverse_messages)
+
+                for count, message in enumerate(sorted_messages[:-1]):
+
+                    if count % 2 != 0:
+                        # write the response to the screen
+                        st.markdown(f"_{user}:_")
+                        st.write(message['content'])
+                        st.write("")
+
+                    else:
+                        st.markdown("_Motoko:_")
+                        st.write(message['content'])
+                        st.write("")
+
         # if the form is submitted session_state.check will be True - create and write the response
         if st.session_state.check["stories"]:
 
-            # clean prompt of unsupported characters
-            user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
-            prompt = {"role": "user", "content": user_input}
+            # if logged in
+            if user:
 
-            # get user input and append to the conversation list
-            st.session_state.conversation["stories"].append(prompt)
+                # get date
+                current_date = datetime.now().strftime("%d/%m/%y %H:%M")
 
-            # request and store GPT completetion 
-            response, response_length = gpt_completion(st.session_state.conversation["stories"])
-            
-            prompt_limit("stories", response_length)
-
-            # append chatbot response
-            st.session_state.conversation["stories"].append({"role": "assistant", "content": response})
-            
-            # reverse the list so that last message displays at the top
-            reverse_iterator = reversed(st.session_state.conversation["stories"])
-            history = list(reverse_iterator)
-
-            # iterate through the messages
-            for count, message in enumerate(history[:-1]):
+                # clean prompt of unsupported characters
+                user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
+                prompt = {"role": "user", "content": user_input}
                 
-                if count % 2 != 0:
-                    # write the response to the screen
-                    st.markdown("_You:_")
-                    st.write(message['content'])
-                    st.write("")
+                try:
+                    
+                    data = db.get(user)
 
-                else:
-                    st.markdown("_Motoko:_")
-                    st.write(message['content'])
-                    st.write("")
+                    if not messages:
 
-            # reset the session state
-            st.session_state.check["stories"] = False
+                        # create title
+                        conversation_title = f"{current_date} - {user_input}"
+                        init_messages = [{"role": "system", "content": "You are a helpful assistant that writes an entire story based on content that the user provides"}]
+
+                        # Retrieve the existing messages dictionary, update 
+                        code_messages_dict = data['conversations']['stories']['messages']
+                        code_messages_dict[conversation_title] = init_messages
+
+                        db.put(data, user)
+
+                    
+                    target_prompt = data["conversations"]["stories"]["messages"].get(conversation_title)
+                    target_prompt.append(prompt)
+                    db.put(data, user)
+
+                    # request and store GPT completetion 
+                    complete_prompt = db.get(user)["conversations"]["stories"]["messages"].get(conversation_title)
+                    response, response_length = gpt_completion(complete_prompt)
+
+                    # prompt_limit("code", response_length) <------------------------------------------------ need to create a new function to handle logged in users
+                    assistant = {"role": "assistant", "content": response}
+                    target_response = data['conversations']['stories']['messages'].get(conversation_title)
+                    target_response.append(assistant)
+                    db.put(data, user)
+
+                    complete_messages = db.get(user)["conversations"]["stories"]["messages"].get(conversation_title)
+
+                    reverse_complete_messages = reversed(complete_messages)
+                    sorted_complete_messages = list(reverse_complete_messages)
+
+                    for count, message in enumerate(sorted_complete_messages[:-1]):
+
+                        if count % 2 != 0:
+                            # write the response to the screen
+                            st.markdown(f"_{user}:_")
+                            st.write(message['content'])
+                            st.write("")
+
+                        else:
+                            st.markdown("_Motoko:_")
+                            st.write(message['content'])
+                            st.write("")
+
+                    # reset the session state
+                    st.session_state.check["stories"] = False
+                    
+                # pain
+                except Exception as e:
+                            st.error(f"DB2\n{e}", icon="💔")
+
+            else:
+
+                # clean prompt of unsupported characters
+                user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
+                prompt = {"role": "user", "content": user_input}
+
+                # get user input and append to the conversation list
+                st.session_state.conversation["stories"].append(prompt)
+
+                # request and store GPT completetion 
+                response, response_length = gpt_completion(st.session_state.conversation["stories"])
+                
+                prompt_limit("stories", response_length)
+
+                assistant = {"role": "assistant", "content": response}
+
+                # append chatbot response
+                st.session_state.conversation["stories"].append(assistant)
+                
+                # reverse the list so that last message displays at the top
+                reverse_iterator = reversed(st.session_state.conversation["stories"])
+                history = list(reverse_iterator)
+
+                # iterate through the messages
+                for count, message in enumerate(history[:-1]):
+                    
+                    if count % 2 != 0:
+                        # write the response to the screen
+                        st.markdown("_You:_")
+                        st.write(message['content'])
+                        st.write("")
+
+                    else:
+                        st.markdown("_Motoko:_")
+                        st.write(message['content'])
+                        st.write("")
+
+                # reset the session state
+                st.session_state.check["stories"] = False
 
 # create stories menu
 def describe_menu():
+
+    messages, conversation_title = message_history("describe")
 
     # create a form  
     with st.form("input_describe", clear_on_submit=True):   
@@ -665,44 +1034,134 @@ def describe_menu():
         # see info box
         info_box()
 
+        if messages:
+            
+            if not st.session_state.check["describe"]:
+
+                reverse_messages = reversed(messages)
+                sorted_messages = list(reverse_messages)
+
+                for count, message in enumerate(sorted_messages[:-1]):
+
+                    if count % 2 != 0:
+                        # write the response to the screen
+                        st.markdown(f"_{user}:_")
+                        st.write(message['content'])
+                        st.write("")
+
+                    else:
+                        st.markdown("_Motoko:_")
+                        st.write(message['content'])
+                        st.write("")
+
         # if the form is submitted session_state.check will be True - create and write the response
         if st.session_state.check["describe"]:
 
-            # clean prompt of unsupported characters
-            user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
-            prompt = {"role": "user", "content": user_input}
+            # if logged in
+            if user:
 
-            # get user input and append to the conversation list
-            st.session_state.conversation["describe"].append(prompt)
+                # get date
+                current_date = datetime.now().strftime("%d/%m/%y %H:%M")
 
-            # request and store GPT completetion 
-            response, response_length = gpt_completion(st.session_state.conversation["describe"])
-            
-            prompt_limit("describe", response_length)
-
-            # append chatbot response
-            st.session_state.conversation["describe"].append({"role": "assistant", "content": response})
-            
-            # reverse the list so that last message displays at the top
-            reverse_iterator = reversed(st.session_state.conversation["describe"])
-            history = list(reverse_iterator)
-
-            # iterate through the messages
-            for count, message in enumerate(history[:-1]):
+                # clean prompt of unsupported characters
+                user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
+                prompt = {"role": "user", "content": user_input}
                 
-                if count % 2 != 0:
-                    # write the response to the screen
-                    st.markdown("_You:_")
-                    st.write(message['content'])
-                    st.write("")
+                try:
+                    
+                    data = db.get(user)
 
-                else:
-                    st.markdown("_Motoko:_")
-                    st.write(message['content'])
-                    st.write("")
+                    if not messages:
 
-            # reset the session state
-            st.session_state.check["describe"] = False
+                        # create title
+                        conversation_title = f"{current_date} - {user_input}"
+                        init_messages = [{"role": "system", "content": "You are a helpful assistant that writes descriptions, particularly aimed at products and services"}]
+
+                        # Retrieve the existing messages dictionary, update 
+                        code_messages_dict = data['conversations']['describe']['messages']
+                        code_messages_dict[conversation_title] = init_messages
+
+                        db.put(data, user)
+
+                    
+                    target_prompt = data["conversations"]["describe"]["messages"].get(conversation_title)
+                    target_prompt.append(prompt)
+                    db.put(data, user)
+
+                    # request and store GPT completetion 
+                    complete_prompt = db.get(user)["conversations"]["describe"]["messages"].get(conversation_title)
+                    response, response_length = gpt_completion(complete_prompt)
+
+                    # prompt_limit("code", response_length) <------------------------------------------------ need to create a new function to handle logged in users
+                    assistant = {"role": "assistant", "content": response}
+                    target_response = data['conversations']['describe']['messages'].get(conversation_title)
+                    target_response.append(assistant)
+                    db.put(data, user)
+
+                    complete_messages = db.get(user)["conversations"]["describe"]["messages"].get(conversation_title)
+
+                    reverse_complete_messages = reversed(complete_messages)
+                    sorted_complete_messages = list(reverse_complete_messages)
+
+                    for count, message in enumerate(sorted_complete_messages[:-1]):
+
+                        if count % 2 != 0:
+                            # write the response to the screen
+                            st.markdown(f"_{user}:_")
+                            st.write(message['content'])
+                            st.write("")
+
+                        else:
+                            st.markdown("_Motoko:_")
+                            st.write(message['content'])
+                            st.write("")
+
+                    # reset the session state
+                    st.session_state.check["describe"] = False
+                    
+                # pain
+                except Exception as e:
+                            st.error(f"DB2\n{e}", icon="💔")
+
+            else:
+
+                # clean prompt of unsupported characters
+                user_input = user_input.encode(encoding='ASCII',errors='ignore').decode()
+                prompt = {"role": "user", "content": user_input}
+
+                # get user input and append to the conversation list
+                st.session_state.conversation["describe"].append(prompt)
+
+                # request and store GPT completetion 
+                response, response_length = gpt_completion(st.session_state.conversation["describe"])
+                
+                prompt_limit("describe", response_length)
+
+                assistant = {"role": "assistant", "content": response}
+
+                # append chatbot response
+                st.session_state.conversation["describe"].append(assistant)
+                
+                # reverse the list so that last message displays at the top
+                reverse_iterator = reversed(st.session_state.conversation["describe"])
+                history = list(reverse_iterator)
+
+                # iterate through the messages
+                for count, message in enumerate(history[:-1]):
+                    
+                    if count % 2 != 0:
+                        # write the response to the screen
+                        st.markdown("_You:_")
+                        st.write(message['content'])
+                        st.write("")
+
+                    else:
+                        st.markdown("_Motoko:_")
+                        st.write(message['content'])
+                        st.write("")
+
+                # reset the session state
+                st.session_state.check["describe"] = False
 
 # create code menu
 def code_menu():
