@@ -189,7 +189,7 @@ def gpt_completion(messages):
     return response, response_length
 
 # limit prompt length 
-def prompt_limit(conversation_type, prompt_length, user):
+def prompt_limit(conversation_type, prompt_length):
 
     # function will check the conversation type, current prompt length
     # and if the user is logged in
