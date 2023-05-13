@@ -189,37 +189,105 @@ def gpt_completion(messages):
     return response, response_length
 
 # limit prompt length 
-def prompt_limit(conversation_type, prompt_length):
+def prompt_limit(conversation_type, prompt_length, user):
 
-    if prompt_length > 7500:
+    # function will check the conversation type, current prompt length
+    # and if the user is logged in
+    # if logged in, it will flag the session state so that
+    # the prompt will be trimmed
+    # if not logged in it will remove the last 4 messages from the 
+    # conversation session state
 
-        if conversation_type == "motoko":
+    if conversation_type == "motoko":
 
-            del st.session_state.conversation["motoko"][1:5]
+        if prompt_length > 7500:
 
-        elif conversation_type == "summarise":
+            if user:
+                st.session_state.flag["motoko"] = True
 
-            del st.session_state.conversation["summarise"][1:5]
+            else:
+                del st.session_state.conversation["motoko"][1:5]
 
-        elif conversation_type == "explain":
-            
-            del st.session_state.conversation["explain"][1:5]
+        else:
+            st.session_state.flag["motoko"] = False
+
+    elif conversation_type == "summarise":
         
-        elif conversation_type == "rewrite":
-            
-            del st.session_state.conversation["rewrite"][1:5]
-        
-        elif conversation_type == "stories":
-            
-            del st.session_state.conversation["stories"][1:5]
+        if prompt_length > 7500:
 
-        elif conversation_type == "describe":
-            
-            del st.session_state.conversation["describe"][1:5]
+            if user:
+                st.session_state.flag["summarise"] = True
 
-        elif conversation_type == "code":
+            else:
+                del st.session_state.conversation["summarise"][1:5]
+
+        else:
+            st.session_state.flag["summarise"] = False
+
+    elif conversation_type == "explain":
+
+        if prompt_length > 7500:
+
+            if user:
+                st.session_state.flag["explain"] = True
+
+            else:
+                del st.session_state.conversation["explain"][1:5]
+
+        else:
+            st.session_state.flag["explain"] = False
+    
+    elif conversation_type == "rewrite":
+
+        if prompt_length > 7500:
+
+            if user:
+                st.session_state.flag["rewrite"] = True
             
-            del st.session_state.conversation["code"][1:5]
+            else:
+                del st.session_state.conversation["rewrite"][1:5]
+
+        else:
+            st.session_state.flag["rewrite"] = False
+    
+    elif conversation_type == "stories":
+
+        if prompt_length > 7500:
+
+            if user:
+                st.session_state.flag["stories"] = True
+
+            else:
+                del st.session_state.conversation["stories"][1:5]
+
+        else:
+            st.session_state.flag["stories"] = False
+
+    elif conversation_type == "describe":
+
+        if prompt_length > 7500:
+
+            if user:
+                st.session_state.flag["describe"] = True
+
+            else:
+                del st.session_state.conversation["describe"][1:5]
+
+        else:
+            st.session_state.flag["describe"] = False
+
+    elif conversation_type == "code":
+
+        if prompt_length > 7500:
+
+            if user:
+                st.session_state.flag["code"] = True
+
+            else:
+                del st.session_state.conversation["code"][1:5]
+
+        else:
+            st.session_state.flag["code"] = False
 
 # see info box
 def info_box():
@@ -344,7 +412,7 @@ def chat_menu():
                     if not messages:
 
                         # create title
-                        conversation_title = f"{current_date} - {user_input[:50]}"
+                        conversation_title = f"{current_date} - {user_input[:50]}..."
                         init_messages = [{"role": "system", "content": "You are a sarcastic robot assistant, you like to make bad jokes but eventually give the correct answer."}]
 
                         # Retrieve the existing messages dictionary, update 
@@ -359,13 +427,21 @@ def chat_menu():
                     db.put(data, user)
 
                     # request and store GPT completetion 
-                    complete_prompt = db.get(user)["conversations"]["motoko"]["messages"].get(conversation_title)
+                    prepare_prompt = db.get(user)["conversations"]["motoko"]["messages"].get(conversation_title)
+
+                    if st.session_state.flag["motoko"]:
+                        complete_prompt = prepare_prompt[:1] + prepare_prompt[5:]
+
+                    else:
+                        # request and store GPT completetion 
+                        complete_prompt = prepare_prompt
+
                     response, response_length = gpt_completion(complete_prompt)
 
-                    # prompt_limit("code", response_length) <------------------------------------------------ need to create a new function to handle logged in users
                     assistant = {"role": "assistant", "content": response}
                     target_response = data['conversations']['motoko']['messages'].get(conversation_title)
                     target_response.append(assistant)
+
                     db.put(data, user)
 
                     complete_messages = db.get(user)["conversations"]["motoko"]["messages"].get(conversation_title)
@@ -388,6 +464,9 @@ def chat_menu():
 
                     # reset the session state
                     st.session_state.check["motoko"] = False
+
+                    # flag prompt length
+                    prompt_limit("motoko", response_length)
                     
                 # pain
                 except Exception as e:
@@ -490,7 +569,7 @@ def summary_menu():
                     if not messages:
 
                         # create title
-                        conversation_title = f"{current_date} - {user_input[:50]}"
+                        conversation_title = f"{current_date} - {user_input[:50]}..."
                         init_messages = [{"role": "system", "content": "You are a helpful assistant that summerizes text into a numbered list"}]
 
                         # Retrieve the existing messages dictionary, update 
@@ -504,14 +583,22 @@ def summary_menu():
                     target_prompt.append(prompt)
                     db.put(data, user)
 
-                    # request and store GPT completetion 
-                    complete_prompt = db.get(user)["conversations"]["summarise"]["messages"].get(conversation_title)
+                    prepare_prompt = db.get(user)["conversations"]["summarise"]["messages"].get(conversation_title)
+
+                    if st.session_state.flag["summarise"]:
+
+                        complete_prompt = prepare_prompt[:1] + prepare_prompt[5:]
+
+                    else:
+                        # request and store GPT completetion 
+                        complete_prompt = prepare_prompt
+                    
                     response, response_length = gpt_completion(complete_prompt)
 
-                    # prompt_limit("code", response_length) <------------------------------------------------ need to create a new function to handle logged in users
                     assistant = {"role": "assistant", "content": response}
                     target_response = data['conversations']['summarise']['messages'].get(conversation_title)
                     target_response.append(assistant)
+
                     db.put(data, user)
 
                     complete_messages = db.get(user)["conversations"]["summarise"]["messages"].get(conversation_title)
@@ -534,6 +621,9 @@ def summary_menu():
 
                     # reset the session state
                     st.session_state.check["summarise"] = False
+
+                    # flag prompt length
+                    prompt_limit("summarise", response_length)
                     
                 # pain
                 except Exception as e:
@@ -636,7 +726,7 @@ def explain_menu():
                     if not messages:
 
                         # create title
-                        conversation_title = f"{current_date} - {user_input[:50]}"
+                        conversation_title = f"{current_date} - {user_input[:50]}..."
                         init_messages = [{"role": "system", "content": "You are a helpful assistant that explains text in a simplified manner, easy enough for a child to understand (ELI5)."}]
 
                         # Retrieve the existing messages dictionary, update 
@@ -651,10 +741,17 @@ def explain_menu():
                     db.put(data, user)
 
                     # request and store GPT completetion 
-                    complete_prompt = db.get(user)["conversations"]["explain"]["messages"].get(conversation_title)
+                    prepare_prompt = db.get(user)["conversations"]["explain"]["messages"].get(conversation_title)
+
+                    if st.session_state.flag["explain"]:
+                        complete_prompt = prepare_prompt[:1] + prepare_prompt[5:]
+
+                    else:
+                        # request and store GPT completetion 
+                        complete_prompt = prepare_prompt
+
                     response, response_length = gpt_completion(complete_prompt)
 
-                    # prompt_limit("code", response_length) <------------------------------------------------ need to create a new function to handle logged in users
                     assistant = {"role": "assistant", "content": response}
                     target_response = data['conversations']['explain']['messages'].get(conversation_title)
                     target_response.append(assistant)
@@ -680,6 +777,9 @@ def explain_menu():
 
                     # reset the session state
                     st.session_state.check["explain"] = False
+
+                    # flag prompt length
+                    prompt_limit("explain", response_length)
                     
                 # pain
                 except Exception as e:
@@ -782,7 +882,7 @@ def rewrite_menu():
                     if not messages:
 
                         # create title
-                        conversation_title = f"{current_date} - {user_input[:50]}"
+                        conversation_title = f"{current_date} - {user_input[:50]}..."
                         init_messages = [{"role": "system", "content": "You are a helpful assistant that rewrites text using other words."}]
 
                         # Retrieve the existing messages dictionary, update 
@@ -797,10 +897,17 @@ def rewrite_menu():
                     db.put(data, user)
 
                     # request and store GPT completetion 
-                    complete_prompt = db.get(user)["conversations"]["rewrite"]["messages"].get(conversation_title)
+                    prepare_prompt = db.get(user)["conversations"]["rewrite"]["messages"].get(conversation_title)
+
+                    if st.session_state.flag["rewrite"]:
+                        complete_prompt = prepare_prompt[:1] + prepare_prompt[5:]
+
+                    else:
+                        # request and store GPT completetion 
+                        complete_prompt = prepare_prompt
+
                     response, response_length = gpt_completion(complete_prompt)
 
-                    # prompt_limit("code", response_length) <------------------------------------------------ need to create a new function to handle logged in users
                     assistant = {"role": "assistant", "content": response}
                     target_response = data['conversations']['rewrite']['messages'].get(conversation_title)
                     target_response.append(assistant)
@@ -826,6 +933,9 @@ def rewrite_menu():
 
                     # reset the session state
                     st.session_state.check["rewrite"] = False
+
+                    # flag prompt length
+                    prompt_limit("rewrite", response_length)
                     
                 # pain
                 except Exception as e:
@@ -928,7 +1038,7 @@ def story_menu():
                     if not messages:
 
                         # create title
-                        conversation_title = f"{current_date} - {user_input[:50]}"
+                        conversation_title = f"{current_date} - {user_input[:50]}..."
                         init_messages = [{"role": "system", "content": "You are a helpful assistant that writes an entire story based on content that the user provides"}]
 
                         # Retrieve the existing messages dictionary, update 
@@ -943,10 +1053,17 @@ def story_menu():
                     db.put(data, user)
 
                     # request and store GPT completetion 
-                    complete_prompt = db.get(user)["conversations"]["stories"]["messages"].get(conversation_title)
+                    prepare_prompt = db.get(user)["conversations"]["stories"]["messages"].get(conversation_title)
+
+                    if st.session_state.flag["stories"]:
+                        complete_prompt = prepare_prompt[:1] + prepare_prompt[5:]
+
+                    else:
+                        # request and store GPT completetion 
+                        complete_prompt = prepare_prompt
+
                     response, response_length = gpt_completion(complete_prompt)
 
-                    # prompt_limit("code", response_length) <------------------------------------------------ need to create a new function to handle logged in users
                     assistant = {"role": "assistant", "content": response}
                     target_response = data['conversations']['stories']['messages'].get(conversation_title)
                     target_response.append(assistant)
@@ -972,6 +1089,9 @@ def story_menu():
 
                     # reset the session state
                     st.session_state.check["stories"] = False
+
+                    # flag prompt length
+                    prompt_limit("stories", response_length)
                     
                 # pain
                 except Exception as e:
@@ -1074,7 +1194,7 @@ def describe_menu():
                     if not messages:
 
                         # create title
-                        conversation_title = f"{current_date} - {user_input[:50]}"
+                        conversation_title = f"{current_date} - {user_input[:50]}..."
                         init_messages = [{"role": "system", "content": "You are a helpful assistant that writes descriptions, particularly aimed at products and services"}]
 
                         # Retrieve the existing messages dictionary, update 
@@ -1089,10 +1209,17 @@ def describe_menu():
                     db.put(data, user)
 
                     # request and store GPT completetion 
-                    complete_prompt = db.get(user)["conversations"]["describe"]["messages"].get(conversation_title)
+                    prepare_prompt = db.get(user)["conversations"]["describe"]["messages"].get(conversation_title)
+
+                    if st.session_state.flag["describe"]:
+                        complete_prompt = prepare_prompt[:1] + prepare_prompt[5:]
+
+                    else:
+                        # request and store GPT completetion 
+                        complete_prompt = prepare_prompt
+
                     response, response_length = gpt_completion(complete_prompt)
 
-                    # prompt_limit("code", response_length) <------------------------------------------------ need to create a new function to handle logged in users
                     assistant = {"role": "assistant", "content": response}
                     target_response = data['conversations']['describe']['messages'].get(conversation_title)
                     target_response.append(assistant)
@@ -1118,6 +1245,9 @@ def describe_menu():
 
                     # reset the session state
                     st.session_state.check["describe"] = False
+
+                    # flag prompt length
+                    prompt_limit("describe", response_length)
                     
                 # pain
                 except Exception as e:
@@ -1220,7 +1350,7 @@ def code_menu():
                     if not messages:
 
                         # create title
-                        conversation_title = f"{current_date} - {user_input[:50]}"
+                        conversation_title = f"{current_date} - {user_input[:50]}..."
                         init_messages = [{"role": "system", "content": "You are a helpful assistant that writes and debugs code in different programming languages"}]
 
                         # Retrieve the existing messages dictionary, update 
@@ -1235,10 +1365,17 @@ def code_menu():
                     db.put(data, user)
 
                     # request and store GPT completetion 
-                    complete_prompt = db.get(user)["conversations"]["code"]["messages"].get(conversation_title)
+                    prepare_prompt = db.get(user)["conversations"]["code"]["messages"].get(conversation_title)
+
+                    if st.session_state.flag["code"]:
+                        complete_prompt = prepare_prompt[:1] + prepare_prompt[5:]
+
+                    else:
+                        # request and store GPT completetion 
+                        complete_prompt = prepare_prompt
+
                     response, response_length = gpt_completion(complete_prompt)
 
-                    # prompt_limit("code", response_length) <------------------------------------------------ need to create a new function to handle logged in users
                     assistant = {"role": "assistant", "content": response}
                     target_response = data['conversations']['code']['messages'].get(conversation_title)
                     target_response.append(assistant)
@@ -1264,6 +1401,9 @@ def code_menu():
 
                     # reset the session state
                     st.session_state.check["code"] = False
+
+                    # flag prompt length
+                    prompt_limit("code", response_length)
                     
                 # pain
                 except Exception as e:
@@ -1386,6 +1526,18 @@ if 'check' not in st.session_state:
         "code": False
     }
 
+if 'flag' not in st.session_state:
+    st.session_state.flag = {
+
+        "motoko": False,
+        "summarise": False,
+        "explain": False,
+        "rewrite": False,
+        "stories": False,
+        "describe": False,
+        "code": False
+    }
+
 # page configurations
 st.set_page_config(
     page_title="Ask it.",
@@ -1406,6 +1558,9 @@ deta = Deta(st.secrets["deta_key"])
 
 # open database
 db = deta.Base("control")
+
+# for trimming the chat history
+indexes_to_remove = {1, 2, 3, 4}
 
 if __name__ == '__main__':
 
