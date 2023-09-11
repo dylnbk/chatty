@@ -47,112 +47,110 @@ def message_history(content):
 
     # take username and verify / create
     logged_in = user_auth(user)
-        
-    with col1:
 
-        if logged_in:
+    if logged_in:
 
-            if content == "motoko":
-                # get the messages linked to a specific title
-                conversation_titles = db.get(user)['conversations']['motoko']['messages'].keys()
-                conversation_select_motoko = st.selectbox("Chat history:", reversed(list(conversation_titles)), key="motoko_select")
+        if content == "motoko":
+            # get the messages linked to a specific title
+            conversation_titles = db.get(user)['conversations']['motoko']['messages'].keys()
+            conversation_select_motoko = st.selectbox("Chat history:", reversed(list(conversation_titles)), key="motoko_select")
 
-                # return the messages matching the title index and username
-                messages  = db.get(user)["conversations"]["motoko"]["messages"].get(conversation_select_motoko)
+            # return the messages matching the title index and username
+            messages  = db.get(user)["conversations"]["motoko"]["messages"].get(conversation_select_motoko)
 
-                check = True
+            check = True
 
-            elif content == "summarise":
-                # get the messages linked to a specific title
-                conversation_titles = db.get(user)['conversations']['summarise']['messages'].keys()
-                conversation_select_summarise = st.selectbox("Chat history:", reversed(list(conversation_titles)), key="summarise_select")
+        elif content == "summarise":
+            # get the messages linked to a specific title
+            conversation_titles = db.get(user)['conversations']['summarise']['messages'].keys()
+            conversation_select_summarise = st.selectbox("Chat history:", reversed(list(conversation_titles)), key="summarise_select")
 
-                # return the messages matching the title index and username
-                messages  = db.get(user)["conversations"]["summarise"]["messages"].get(conversation_select_summarise)
+            # return the messages matching the title index and username
+            messages  = db.get(user)["conversations"]["summarise"]["messages"].get(conversation_select_summarise)
 
-                check = True
+            check = True
 
-            elif content == "explain":
-                # get the messages linked to a specific title
-                conversation_titles = db.get(user)['conversations']['explain']['messages'].keys()
-                conversation_select_explain = st.selectbox("Chat history:", reversed(list(conversation_titles)), key="explain_select")
+        elif content == "explain":
+            # get the messages linked to a specific title
+            conversation_titles = db.get(user)['conversations']['explain']['messages'].keys()
+            conversation_select_explain = st.selectbox("Chat history:", reversed(list(conversation_titles)), key="explain_select")
 
-                # return the messages matching the title index and username
-                messages  = db.get(user)["conversations"]["explain"]["messages"].get(conversation_select_explain)
+            # return the messages matching the title index and username
+            messages  = db.get(user)["conversations"]["explain"]["messages"].get(conversation_select_explain)
 
-                check = True
+            check = True
 
-            elif content == "rewrite":
-                # get the messages linked to a specific title
-                conversation_titles = db.get(user)['conversations']['rewrite']['messages'].keys()
-                conversation_select_rewrite = st.selectbox("Chat history:", reversed(list(conversation_titles)), key="rewrite_select")
+        elif content == "rewrite":
+            # get the messages linked to a specific title
+            conversation_titles = db.get(user)['conversations']['rewrite']['messages'].keys()
+            conversation_select_rewrite = st.selectbox("Chat history:", reversed(list(conversation_titles)), key="rewrite_select")
 
-                # return the messages matching the title index and username
-                messages  = db.get(user)["conversations"]["rewrite"]["messages"].get(conversation_select_rewrite)
+            # return the messages matching the title index and username
+            messages  = db.get(user)["conversations"]["rewrite"]["messages"].get(conversation_select_rewrite)
 
-                check = True
+            check = True
 
-            elif content == "stories":
-                # get the messages linked to a specific title
-                conversation_titles = db.get(user)['conversations']['stories']['messages'].keys()
-                conversation_select_stories = st.selectbox("Chat history:", reversed(list(conversation_titles)), key="stories_select")
+        elif content == "stories":
+            # get the messages linked to a specific title
+            conversation_titles = db.get(user)['conversations']['stories']['messages'].keys()
+            conversation_select_stories = st.selectbox("Chat history:", reversed(list(conversation_titles)), key="stories_select")
 
-                # return the messages matching the title index and username
-                messages  = db.get(user)["conversations"]["stories"]["messages"].get(conversation_select_stories)
+            # return the messages matching the title index and username
+            messages  = db.get(user)["conversations"]["stories"]["messages"].get(conversation_select_stories)
 
-                check = True
+            check = True
 
-            elif content == "describe":
-                # get the messages linked to a specific title
-                conversation_titles = db.get(user)['conversations']['describe']['messages'].keys()
-                conversation_select_describe = st.selectbox("Chat history:", reversed(list(conversation_titles)), key="describe_select")
+        elif content == "describe":
+            # get the messages linked to a specific title
+            conversation_titles = db.get(user)['conversations']['describe']['messages'].keys()
+            conversation_select_describe = st.selectbox("Chat history:", reversed(list(conversation_titles)), key="describe_select")
 
-                # return the messages matching the title index and username
-                messages  = db.get(user)["conversations"]["describe"]["messages"].get(conversation_select_describe)
+            # return the messages matching the title index and username
+            messages  = db.get(user)["conversations"]["describe"]["messages"].get(conversation_select_describe)
 
-                check = True
+            check = True
 
-            elif content == "code":
+        elif content == "code":
 
-                # get the messages linked to a specific title
-                conversation_titles = db.get(user)['conversations']['code']['messages'].keys()
-                conversation_select_code = st.selectbox("Chat history:", reversed(list(conversation_titles)), key="code_select")
+            # get the messages linked to a specific title
+            conversation_titles = db.get(user)['conversations']['code']['messages'].keys()
+            conversation_select_code = st.selectbox("Chat history:", reversed(list(conversation_titles)), key="code_select")
 
-                # return the messages matching the title index and username
-                messages  = db.get(user)["conversations"]["code"]["messages"].get(conversation_select_code)
+            # return the messages matching the title index and username
+            messages  = db.get(user)["conversations"]["code"]["messages"].get(conversation_select_code)
 
-                check = True
-        else:
+            check = True
+    else:
 
-            st.selectbox("Chat history:", ("",), key=f"{content}_select")
+        st.selectbox("Chat history:", ("",), key=f"{content}_select")
     
-    with col2:
-            if st.button("Delete", key=f"{content}_button"):
 
-                data = db.get(user)
+    if st.button("Delete", key=f"{content}_button"):
 
-                if content == "motoko" and data["conversations"]["motoko"]["messages"][conversation_select_motoko]:
-                    del data["conversations"]["motoko"]["messages"][conversation_select_motoko]
+        data = db.get(user)
 
-                elif content == "summarise" and data["conversations"]["summarise"]["messages"][conversation_select_summarise]:
-                    del data["conversations"]["summarise"]["messages"][conversation_select_summarise]
-                
-                elif content == "explain" and data["conversations"]["explain"]["messages"][conversation_select_explain]:
-                    del data["conversations"]["explain"]["messages"][conversation_select_explain]
+        if content == "motoko" and data["conversations"]["motoko"]["messages"][conversation_select_motoko]:
+            del data["conversations"]["motoko"]["messages"][conversation_select_motoko]
 
-                elif content == "rewrite" and data["conversations"]["rewrite"]["messages"][conversation_select_rewrite]:
-                    del data["conversations"]["rewrite"]["messages"][conversation_select_rewrite]
+        elif content == "summarise" and data["conversations"]["summarise"]["messages"][conversation_select_summarise]:
+            del data["conversations"]["summarise"]["messages"][conversation_select_summarise]
+        
+        elif content == "explain" and data["conversations"]["explain"]["messages"][conversation_select_explain]:
+            del data["conversations"]["explain"]["messages"][conversation_select_explain]
 
-                elif content == "stories" and data["conversations"]["stories"]["messages"][conversation_select_stories]:
-                    del data["conversations"]["stories"]["messages"][conversation_select_stories]
+        elif content == "rewrite" and data["conversations"]["rewrite"]["messages"][conversation_select_rewrite]:
+            del data["conversations"]["rewrite"]["messages"][conversation_select_rewrite]
 
-                elif content == "describe" and data["conversations"]["describe"]["messages"][conversation_select_describe]:
-                    del data["conversations"]["describe"]["messages"][conversation_select_describe]
+        elif content == "stories" and data["conversations"]["stories"]["messages"][conversation_select_stories]:
+            del data["conversations"]["stories"]["messages"][conversation_select_stories]
 
-                elif content == "code" and data["conversations"]["code"]["messages"][conversation_select_code]:
-                    del data["conversations"]["code"]["messages"][conversation_select_code]
+        elif content == "describe" and data["conversations"]["describe"]["messages"][conversation_select_describe]:
+            del data["conversations"]["describe"]["messages"][conversation_select_describe]
 
-                db.put(data, user)
+        elif content == "code" and data["conversations"]["code"]["messages"][conversation_select_code]:
+            del data["conversations"]["code"]["messages"][conversation_select_code]
+
+        db.put(data, user)
 
     if check:
 
