@@ -41,8 +41,6 @@ def user_auth(username):
         
 def message_history(content):
 
-    col1, col2 = st.columns([2, 1])
-
     check = False
 
     # take username and verify / create
