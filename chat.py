@@ -409,7 +409,7 @@ def chat_menu():
 
                         # create title
                         conversation_title = f"{current_date} - {user_input[:50]}..."
-                        init_messages = [{"role": "system", "content": "You are a sarcastic robot assistant, you like to make bad jokes but eventually give the correct answer."}]
+                        init_messages = [{"role": "system", "content": "You are a super intelligent assistant, you like to answer users questions on every topic."}]
 
                         # Retrieve the existing messages dictionary, update 
                         code_messages_dict = data['conversations']['motoko']['messages']
@@ -1479,7 +1479,7 @@ def check_true_code():
 if 'conversation' not in st.session_state:
     st.session_state.conversation = {
         "motoko": [
-            {"role": "system", "content": "You are a sarcastic robot assistant, you like to make bad jokes but eventually give the correct answer."},
+            {"role": "system", "content": "You are a super intelligent assistant, you like to answer users questions on every topic."},
         ],
 
         "summarise": [
