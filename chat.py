@@ -176,7 +176,7 @@ def message_history(content):
 def gpt_completion(messages):
 
     # fetch response
-    response = client.chat.completions.create(model="gpt-4-32k", messages=messages)
+    response = client.chat.completions.create(model="gpt-4-1106-preview", messages=messages)
 
     response_length = response.usage.total_tokens
     response = response.choices[0].message.content
