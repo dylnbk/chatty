@@ -209,7 +209,7 @@ def prompt_limit(conversation_type, prompt_length):
 
     elif conversation_type == "summarise":
         
-        if prompt_length > 7500:
+        if prompt_length > 100000:
 
             if user:
                 st.session_state.flag["summarise"] = True
@@ -222,7 +222,7 @@ def prompt_limit(conversation_type, prompt_length):
 
     elif conversation_type == "explain":
 
-        if prompt_length > 7500:
+        if prompt_length > 100000:
 
             if user:
                 st.session_state.flag["explain"] = True
@@ -235,7 +235,7 @@ def prompt_limit(conversation_type, prompt_length):
     
     elif conversation_type == "rewrite":
 
-        if prompt_length > 7500:
+        if prompt_length > 100000:
 
             if user:
                 st.session_state.flag["rewrite"] = True
@@ -248,7 +248,7 @@ def prompt_limit(conversation_type, prompt_length):
     
     elif conversation_type == "stories":
 
-        if prompt_length > 7500:
+        if prompt_length > 100000:
 
             if user:
                 st.session_state.flag["stories"] = True
@@ -261,7 +261,7 @@ def prompt_limit(conversation_type, prompt_length):
 
     elif conversation_type == "describe":
 
-        if prompt_length > 7500:
+        if prompt_length > 100000:
 
             if user:
                 st.session_state.flag["describe"] = True
@@ -274,7 +274,7 @@ def prompt_limit(conversation_type, prompt_length):
 
     elif conversation_type == "code":
 
-        if prompt_length > 7500:
+        if prompt_length > 100000:
 
             if user:
                 st.session_state.flag["code"] = True
