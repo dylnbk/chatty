@@ -1,7 +1,7 @@
-import openai
 import streamlit as st
 from deta import Deta
 from datetime import datetime
+from openai import OpenAI
 
 # load & inject style sheet
 def local_css(file_name):
@@ -176,10 +176,10 @@ def message_history(content):
 def gpt_completion(messages):
 
     # fetch response
-    response = openai.ChatCompletion.create(model="gpt-4", messages=messages)
+    response = client.completions.create(model="gpt-4", messages=messages)
 
-    response_length = response["usage"]["total_tokens"]
-    response = response["choices"][0]["message"]["content"]
+    response_length = response.usage.total_tokens
+    response = response.choices[0].message.content
     
     # return response & token length
     return response, response_length
@@ -1547,7 +1547,10 @@ st.set_page_config(
 
 # style sheet & openAI API key
 local_css("style.css")
-openai.api_key = st.secrets["openaiapikey"]
+client = OpenAI(
+  api_key=st.secrets["openaiapikey"],  # this is also the default, it can be omitted
+)
+
 
 # connect with NoSQL API Deta
 deta = Deta(st.secrets["deta_key"])
