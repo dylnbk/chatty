@@ -196,7 +196,7 @@ def prompt_limit(conversation_type, prompt_length):
 
     if conversation_type == "motoko":
 
-        if prompt_length > 7500:
+        if prompt_length > 100000:
 
             if user:
                 st.session_state.flag["motoko"] = True
